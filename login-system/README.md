@@ -1,59 +1,56 @@
 # Login System
 
-This project is a simple login system built using Node.js, Express, and MongoDB. It demonstrates how to authenticate users with hardcoded credentials and connect to an online MongoDB database.
+This project is a simple login system built with TypeScript. It includes a front-end login page and a back-end authentication system.
 
 ## Project Structure
 
 ```
 login-system
 ├── src
-│   ├── app.js          # Entry point of the application
-│   ├── db.js           # Database connection handling
+│   ├── controllers
+│   │   └── authController.ts
+│   ├── models
+│   │   └── userModel.ts
 │   ├── routes
-│   │   └── auth.js     # Authentication routes
-│   └── models
-│       └── user.js     # User model definition
-├── package.json         # NPM configuration file
-├── .env                 # Environment variables
-└── README.md            # Project documentation
+│   │   └── authRoutes.ts
+│   ├── views
+│   │   └── login.html
+│   └── types
+│       └── index.ts
+├── package.json
+├── tsconfig.json
+└── README.md
 ```
 
-## Setup Instructions
+## Installation
 
-1. **Clone the repository:**
+1. Clone the repository:
    ```
-   git clone <repository-url>
+   git clone https://github.com/yourusername/login-system.git
+   ```
+2. Navigate to the project directory:
+   ```
    cd login-system
    ```
-
-2. **Install dependencies:**
+3. Install the dependencies:
    ```
    npm install
    ```
 
-3. **Configure environment variables:**
-   - Create a `.env` file in the root directory and add your MongoDB connection string:
-     ```
-     MONGODB_URI=<your-mongodb-connection-string>
-     ```
-
-4. **Run the application:**
-   ```
-   node src/app.js
-   ```
-
 ## Usage
 
-- To log in, send a POST request to `/login` with the following JSON body:
-  ```json
-  {
-    "userId": "yourUserId",
-    "password": "yourPassword"
-  }
-  ```
+1. Start the server:
+   ```
+   npm start
+   ```
+2. Open your browser and go to `http://localhost:3000` to access the login page.
 
-- The application will respond with a success message if the credentials are correct, or an error message if they are not.
+## Features
 
-## License
+- User authentication with login and logout functionality.
+- Simple and clean HTML login form.
+- TypeScript for type safety and better development experience.
 
-This project is licensed under the MIT License.
+## Contributing
+
+Feel free to submit issues or pull requests to improve the project.
