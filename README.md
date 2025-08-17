@@ -13,10 +13,9 @@ login-system
 │   │   └── userModel.ts
 │   ├── routes
 │   │   └── authRoutes.ts
-│   ├── views
-│   │   └── login.html
 │   └── types
 │       └── index.ts
+├── login.html
 ├── package.json
 ├── tsconfig.json
 └── README.md
@@ -43,7 +42,7 @@ login-system
    ```
    npm start
    ```
-2. Open your browser and go to `http://localhost:3000` to access the login page.
+2. Open your browser and go to `http://localhost:3000/login.html` to access the login page.
 
 ## Features
 
