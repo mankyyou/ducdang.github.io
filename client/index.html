@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login Demo</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; padding: 2rem; background: #f6f7f9; }
+    .card { max-width: 420px; margin: 0 auto; background: #fff; padding: 1.5rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+    h1 { margin-top: 0; }
+    label { display:block; margin:.5rem 0 .25rem; }
+    input { width:100%; padding:.6rem .75rem; border:1px solid #ddd; border-radius:10px; }
+    button { margin-top: .75rem; width:100%; padding:.7rem; border:none; border-radius:12px; background:#0a66c2; color:#fff; font-weight:600; cursor:pointer; }
+    button.secondary { background:#444; }
+    .row { display:flex; gap:.5rem; }
+    .muted { color:#666; font-size:.9rem; }
+    pre { background:#0f172a; color:#e2e8f0; padding:1rem; border-radius:12px; overflow:auto; }
+    .ok { color: #0a7f2e; }
+    .err { color: #b00020; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Login Demo</h1>
+    <p class="muted">MongoDB + Express backend, plain HTML/JS frontend.</p>
+
+    <label>Email</label>
+    <input id="email" type="email" placeholder="you@example.com" />
+
+    <label>Password</label>
+    <input id="password" type="password" placeholder="••••••••" />
+
+    <div class="row">
+      <button onclick="register()">Sign up</button>
+      <button class="secondary" onclick="login()">Log in</button>
+    </div>
+
+    <button style="margin-top: .5rem;" onclick="me()">Check /me</button>
+
+    <p id="status"></p>
+    <pre id="out"></pre>
+
+    <p class="muted">
+      Configure <code>API_BASE</code> in <code>client/app.js</code> to point to your backend URL.
+    </p>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
