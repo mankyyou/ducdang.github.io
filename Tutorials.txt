@@ -1,0 +1,18 @@
+mongo: 
+https://cloud.mongodb.com/v2/67eaa68152c7cc3c879f1300#/security/network/accessList
+
+hosting:
+https://hpanel.hostinger.com/domain/ducdang.online/domain-overview/AzZUHEUuWZkFO2G29
+
+fe:
+https://dash.cloudflare.com/6fb2dcda142c8407d1d6e59ed69588dc/pages/new/provider/github
+
+be:
+https://railway.com/project/53c72a5a-b45e-46d1-932a-991fe6d0f073/service/d7c25745-e42e-42af-9047-d39049b90465/settings?environmentId=5979c724-395b-4606-bb55-f84eac4c66ab#networking
+
+myPage (deployed)
+https://ducdang-github-io.pages.dev/
+
+be (deployed)
+https://ducdanggithubio-production.up.railway.app/
+
