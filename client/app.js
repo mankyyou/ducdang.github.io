@@ -38,6 +38,7 @@ async function login(){
     // store token for demo
     localStorage.setItem('token', data.token);
     setStatus('Logged in ✓ (token saved)', true);
+    window.location.href = 'dashboard.html'; // redirect to dashboard
     log({ token: data.token });
   }catch(err){
     setStatus(err.message, false);
