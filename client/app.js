@@ -1,6 +1,5 @@
-// Set this to your backend base URL. For local dev: 'http://localhost:4000'
-const API_BASE = 'https://ducdanggithubio-production.up.railway.app';
-// const API_BASE = 'http://localhost:4000';
+// Import shared config
+// API_BASE is now defined in config.js
 
 function $(id){ return document.getElementById(id); }
 function log(obj){ $('out').textContent = JSON.stringify(obj, null, 2); }

@@ -1,0 +1,33 @@
+<!-- Shared Header Component -->
+<div class="header">
+  <h1 id="page-title">Dashboard</h1>
+  <div class="user-dropdown" id="user-dropdown">
+    <button class="user-trigger" onclick="toggleDropdown()">
+      <div class="user-avatar" id="user-avatar">U</div>
+      <div class="user-info">
+        <div class="user-name" id="user-name">Loading...</div>
+        <div class="user-email" id="user-email">loading@example.com</div>
+      </div>
+      <div class="dropdown-arrow"></div>
+    </button>
+    <div class="dropdown-menu" id="dropdown-menu">
+      <div class="dropdown-item">
+        <div class="dropdown-icon">👤</div>
+        <span>Profile</span>
+      </div>
+      <div class="dropdown-item">
+        <div class="dropdown-icon">⚙️</div>
+        <span>Settings</span>
+      </div>
+      <div class="dropdown-item logout" onclick="logout()">
+        <div class="dropdown-icon">🚪</div>
+        <span>Logout</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="nav-tabs">
+  <button class="tab" id="dashboard-tab" onclick="goToDashboard()">Dashboard</button>
+  <button class="tab" id="notes-tab" onclick="goToMyNote()">My Note</button>
+</div>
