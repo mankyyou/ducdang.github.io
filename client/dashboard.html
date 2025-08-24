@@ -4,26 +4,133 @@
   <meta charset="UTF-8">
   <title>Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; }
-    .dashboard-container {
-      width: 400px; margin: 80px auto; padding: 24px;
-      background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #ccc;
+    body { 
+      font-family: Arial, sans-serif; 
+      background: #f4f4f4; 
+      margin: 0;
+      padding: 0;
     }
-    button { padding: 10px 20px; background: #e74c3c; color: #fff; border: none; border-radius: 4px; }
+    .header {
+      background: #fff;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 {
+      margin: 0;
+      color: #333;
+    }
+    .nav-tabs {
+      display: flex;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      padding: 0 2rem;
+    }
+    .tab {
+      padding: 1rem 2rem;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 1rem;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+    }
+    .tab:hover {
+      background: #f8f9fa;
+      color: #333;
+    }
+    .tab.active {
+      color: #0a66c2;
+      border-bottom-color: #0a66c2;
+      font-weight: 600;
+    }
+    .dashboard-container {
+      width: 90%;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .logout-btn {
+      padding: 0.5rem 1rem;
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .logout-btn:hover {
+      background: #c0392b;
+    }
+    .welcome-section {
+      text-align: center;
+      padding: 2rem 0;
+    }
+    .welcome-section h2 {
+      color: #333;
+      margin-bottom: 1rem;
+    }
+    .welcome-section p {
+      color: #666;
+      font-size: 1.1rem;
+    }
   </style>
 </head>
 <body>
-  <div class="dashboard-container">
-    <h2>Welcome to Dashboard!</h2>
-    <p>You have successfully logged in.</p>
-    <button onclick="logout()">Logout</button>
+  <div class="header">
+    <h1>Dashboard</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
   </div>
+  
+  <div class="nav-tabs">
+    <button class="tab active" onclick="showDashboard()">Dashboard</button>
+    <button class="tab" onclick="goToMyNote()">My Note</button>
+  </div>
+
+  <div class="dashboard-container" id="dashboard-content">
+    <div class="welcome-section">
+      <h2>Welcome to Dashboard!</h2>
+      <p>You have successfully logged in.</p>
+      <p>Click on the "My Note" tab to access your notes.</p>
+    </div>
+  </div>
+
   <script>
     // Check login (JWT in localStorage)
     if (!localStorage.getItem('token')) {
       window.location.href = 'index.html';
-
     }
+
+    function showDashboard() {
+      // Update active tab
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      // Show dashboard content
+      document.getElementById('dashboard-content').innerHTML = `
+        <div class="welcome-section">
+          <h2>Welcome to Dashboard!</h2>
+          <p>You have successfully logged in.</p>
+          <p>Click on the "My Note" tab to access your notes.</p>
+        </div>
+      `;
+    }
+
+    function goToMyNote() {
+      // Update active tab
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      // Redirect to mynote.html
+      window.location.href = 'mynote.html';
+    }
+
     function logout() {
       localStorage.removeItem('token');
       window.location.href = 'index.html';

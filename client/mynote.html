@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Notes</title>
+  <style>
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: #f8f9fa; 
+      margin: 0;
+      padding: 0;
+    }
+         .header {
+       background: #fff;
+       padding: 1rem 2rem;
+       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       width: 100%;
+       position: sticky;
+       top: 0;
+       z-index: 100;
+     }
+     .header h1 {
+       margin: 0;
+       color: #333;
+     }
+     .nav-tabs {
+       display: flex;
+       background: #fff;
+       border-bottom: 1px solid #ddd;
+       padding: 0 2rem;
+       width: 100%;
+       position: sticky;
+       top: 70px;
+       z-index: 99;
+     }
+    .tab {
+      padding: 1rem 2rem;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 1rem;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+    }
+    .tab:hover {
+      background: #f8f9fa;
+      color: #333;
+    }
+         .tab.active {
+       color: #0a66c2;
+       border-bottom-color: #0a66c2;
+       font-weight: 600;
+       transform: translateY(-2px);
+     }
+     
+     /* Animation for tab switching */
+     .tab {
+       position: relative;
+       overflow: hidden;
+     }
+     
+     .tab::before {
+       content: '';
+       position: absolute;
+       top: 0;
+       left: -100%;
+       width: 100%;
+       height: 100%;
+       background: linear-gradient(90deg, transparent, rgba(10, 102, 194, 0.1), transparent);
+       transition: left 0.5s;
+     }
+     
+     .tab:hover::before {
+       left: 100%;
+     }
+         .main-container {
+       display: flex;
+       height: calc(100vh - 120px); /* Subtract header and nav height */
+       margin: 0;
+       width: 100%;
+     }
+     .sidebar {
+       background: #fff;
+       width: 350px;
+       padding: 1.5rem;
+       box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+       overflow-y: auto;
+       border-right: 1px solid #e9ecef;
+     }
+     .note-editor {
+       background: #fff;
+       flex: 1;
+       padding: 2rem;
+       overflow-y: auto;
+     }
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .btn-primary {
+      background: #0a66c2;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #084d8f;
+    }
+    .btn-secondary {
+      background: #6c757d;
+      color: #fff;
+    }
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+    .btn-danger {
+      background: #e74c3c;
+      color: #fff;
+    }
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+    .logout-btn {
+      padding: 0.5rem 1rem;
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .logout-btn:hover {
+      background: #c0392b;
+    }
+         .note-list {
+       margin-top: 1rem;
+       max-height: calc(100vh - 250px);
+       overflow-y: auto;
+     }
+    .note-item {
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+    .note-item:hover {
+      background: #e9ecef;
+      border-left-color: #0a66c2;
+    }
+    .note-item.active {
+      background: #e3f2fd;
+      border-left-color: #0a66c2;
+    }
+    .note-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: #333;
+    }
+    .note-preview {
+      font-size: 0.85rem;
+      color: #666;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+         .note-date {
+       font-size: 0.75rem;
+       color: #999;
+       margin-top: 0.25rem;
+     }
+     .note-actions {
+       display: flex;
+       gap: 0.5rem;
+       margin-top: 0.5rem;
+       opacity: 0;
+       transition: opacity 0.3s ease;
+     }
+     .note-item:hover .note-actions {
+       opacity: 1;
+     }
+     .action-btn {
+       background: none;
+       border: none;
+       cursor: pointer;
+       padding: 0.25rem;
+       border-radius: 4px;
+       transition: background-color 0.3s ease;
+     }
+     .action-btn:hover {
+       background-color: rgba(0, 0, 0, 0.1);
+     }
+     .action-btn.edit {
+       color: #0a66c2;
+     }
+     .action-btn.delete {
+       color: #e74c3c;
+     }
+           .search-container {
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
+      }
+      .search-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        background: #fff;
+        box-sizing: border-box;
+      }
+     .search-input:focus {
+       outline: none;
+       border-color: #0a66c2;
+       box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+     }
+     .form-group {
+       margin-bottom: 1.5rem;
+     }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: #0a66c2;
+      box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+    }
+         textarea.form-control {
+       resize: vertical;
+       min-height: 400px;
+       max-height: calc(100vh - 400px);
+     }
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+               .empty-state h3 {
+        margin-bottom: 1rem;
+        color: #333;
+      }
+      
+      /* Popup Notifications */
+      .popup {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        z-index: 1000;
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      }
+      
+      .popup.show {
+        transform: translateX(0);
+      }
+      
+      .popup.success {
+        background: linear-gradient(135deg, #28a745, #20c997);
+      }
+      
+      .popup.error {
+        background: linear-gradient(135deg, #dc3545, #e74c3c);
+      }
+      
+      .popup.info {
+        background: linear-gradient(135deg, #17a2b8, #0a66c2);
+      }
+      
+      /* Loading Animation */
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
+      /* Button Animation */
+      .btn {
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255,255,255,0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.3s, height 0.3s;
+      }
+      
+      .btn:active::before {
+        width: 300px;
+        height: 300px;
+      }
+      
+      /* Note Item Animation */
+      .note-item {
+        animation: slideIn 0.3s ease;
+      }
+      
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+             /* Form Animation */
+       .form-group {
+         animation: fadeInUp 0.4s ease;
+       }
+       
+       @keyframes fadeInUp {
+         from {
+           opacity: 0;
+           transform: translateY(30px);
+         }
+         to {
+           opacity: 1;
+           transform: translateY(0);
+         }
+       }
+       
+       /* Multi-Select Styles */
+       .multi-select-mode {
+         background: #e3f2fd !important;
+         border-left-color: #0a66c2 !important;
+       }
+       
+       .note-item.selected {
+         background: #e8f5e8 !important;
+         border-left-color: #28a745 !important;
+         border: 2px solid #28a745;
+       }
+       
+       .note-item.selected .note-title {
+         color: #155724;
+       }
+       
+       .checkbox-wrapper {
+         display: flex;
+         align-items: center;
+         gap: 0.5rem;
+         margin-bottom: 0.5rem;
+       }
+       
+       .note-checkbox {
+         width: 18px;
+         height: 18px;
+         cursor: pointer;
+         accent-color: #28a745;
+       }
+       
+       .multi-select-actions {
+         display: none;
+         gap: 0.5rem;
+         margin-bottom: 1rem;
+         padding: 0.75rem;
+         background: #f8f9fa;
+         border-radius: 6px;
+         border: 1px solid #e9ecef;
+       }
+       
+       .multi-select-actions.show {
+         display: flex;
+         animation: slideDown 0.3s ease;
+       }
+       
+       @keyframes slideDown {
+         from {
+           opacity: 0;
+           transform: translateY(-10px);
+         }
+         to {
+           opacity: 1;
+           transform: translateY(0);
+         }
+       }
+       
+       .select-all-btn {
+         background: #6c757d;
+         color: white;
+         border: none;
+         padding: 0.5rem 1rem;
+         border-radius: 4px;
+         cursor: pointer;
+         font-size: 0.85rem;
+       }
+       
+       .select-all-btn:hover {
+         background: #5a6268;
+       }
+       
+       .bulk-delete-btn {
+         background: #dc3545;
+         color: white;
+         border: none;
+         padding: 0.5rem 1rem;
+         border-radius: 4px;
+         cursor: pointer;
+         font-size: 0.85rem;
+       }
+       
+       .bulk-delete-btn:hover {
+         background: #c82333;
+       }
+       
+       .bulk-delete-btn:disabled {
+         background: #6c757d;
+         cursor: not-allowed;
+       }
+       
+       .selection-count {
+         color: #666;
+         font-size: 0.9rem;
+         margin-left: auto;
+       }
+       
+       /* Responsive Design */
+     @media (max-width: 768px) {
+       .main-container {
+         flex-direction: column;
+         height: auto;
+       }
+       .sidebar {
+         width: 100%;
+         max-height: 300px;
+       }
+       .note-editor {
+         min-height: 400px;
+       }
+     }
+   </style>
+</head>
+<body>
+  <div class="header">
+    <h1>My Notes</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+  
+  <div class="nav-tabs">
+    <button class="tab" onclick="goToDashboard()">Dashboard</button>
+    <button class="tab active" onclick="showNotes()">My Note</button>
+  </div>
+
+     <!-- Popup Notifications Container -->
+   <div id="popupContainer"></div>
+   
+   <div class="main-container">
+          <div class="sidebar">
+               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 style="margin: 0;">Notes</h3>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary" onclick="toggleMultiSelect()" id="multiSelectBtn">Select Multiple</button>
+            <button class="btn btn-primary" onclick="createNewNote()">+ New</button>
+          </div>
+        </div>
+        
+        <!-- Multi-Select Actions -->
+        <div class="multi-select-actions" id="multiSelectActions">
+          <button class="select-all-btn" onclick="selectAllNotes()">Select All</button>
+          <button class="bulk-delete-btn" onclick="bulkDeleteNotes()" id="bulkDeleteBtn" disabled>Delete Selected</button>
+          <span class="selection-count" id="selectionCount">0 selected</span>
+        </div>
+       <div class="search-container">
+         <input 
+           type="text" 
+           id="searchInput" 
+           class="search-input" 
+           placeholder="Search notes by title or content..."
+           oninput="searchNotes()"
+         >
+       </div>
+       <div class="note-list" id="noteList">
+         <!-- Notes will be populated here -->
+       </div>
+     </div>
+
+    <div class="note-editor" id="noteEditor">
+      <div class="empty-state" id="emptyState">
+        <h3>Welcome to My Notes!</h3>
+        <p>Click "New" to create your first note or select an existing note from the sidebar.</p>
+      </div>
+      
+      <div id="noteForm" style="display: none;">
+        <div class="form-group">
+          <label for="noteTitle">Title</label>
+          <input type="text" id="noteTitle" class="form-control" placeholder="Enter note title...">
+        </div>
+        <div class="form-group">
+          <label for="noteContent">Content</label>
+          <textarea id="noteContent" class="form-control" placeholder="Write your note here..."></textarea>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="saveNote()">Save</button>
+          <button class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
+          <button class="btn btn-danger" onclick="deleteNote()" id="deleteBtn" style="display: none;">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // API Configuration
+    const API_BASE = 'http://localhost:4000';
+    
+    // Check login (JWT in localStorage)
+    if (!localStorage.getItem('token')) {
+      window.location.href = 'index.html';
+    }
+
+         let notes = [];
+     let filteredNotes = [];
+     let currentNoteId = null;
+     let isMultiSelectMode = false;
+     let selectedNotes = new Set();
+
+     // Initialize the page
+     document.addEventListener('DOMContentLoaded', function() {
+       loadNotes();
+     });
+
+     // Popup Notification Functions
+     function showPopup(message, type = 'info', duration = 3000) {
+       const popupContainer = document.getElementById('popupContainer');
+       const popup = document.createElement('div');
+       popup.className = `popup ${type}`;
+       popup.innerHTML = message;
+       
+       popupContainer.appendChild(popup);
+       
+       // Trigger animation
+       setTimeout(() => popup.classList.add('show'), 100);
+       
+       // Auto remove
+       setTimeout(() => {
+         popup.classList.remove('show');
+         setTimeout(() => popup.remove(), 300);
+       }, duration);
+     }
+
+     // Tab Animation Function
+     function animateTabSwitch(targetTab) {
+       // Remove active class from all tabs
+       document.querySelectorAll('.tab').forEach(tab => {
+         tab.classList.remove('active');
+       });
+       
+       // Add active class to target tab with animation
+       targetTab.classList.add('active');
+       
+       // Add ripple effect
+       const ripple = document.createElement('div');
+       ripple.style.cssText = `
+         position: absolute;
+         top: 50%;
+         left: 50%;
+         width: 0;
+         height: 0;
+         background: rgba(10, 102, 194, 0.3);
+         border-radius: 50%;
+         transform: translate(-50%, -50%);
+         transition: width 0.6s, height 0.6s, opacity 0.6s;
+         pointer-events: none;
+       `;
+       
+       targetTab.appendChild(ripple);
+       
+       setTimeout(() => {
+         ripple.style.width = '300px';
+         ripple.style.height = '300px';
+         ripple.style.opacity = '0';
+       }, 10);
+       
+              setTimeout(() => ripple.remove(), 600);
+     }
+
+     // Multi-Select Functions
+     function toggleMultiSelect() {
+       isMultiSelectMode = !isMultiSelectMode;
+       const multiSelectBtn = document.getElementById('multiSelectBtn');
+       const multiSelectActions = document.getElementById('multiSelectActions');
+       
+       if (isMultiSelectMode) {
+         multiSelectBtn.textContent = 'Cancel Selection';
+         multiSelectBtn.classList.remove('btn-secondary');
+         multiSelectBtn.classList.add('btn-danger');
+         multiSelectActions.classList.add('show');
+         showPopup('Multi-select mode enabled. Click on notes to select them.', 'info', 3000);
+       } else {
+         multiSelectBtn.textContent = 'Select Multiple';
+         multiSelectBtn.classList.remove('btn-danger');
+         multiSelectBtn.classList.add('btn-secondary');
+         multiSelectActions.classList.remove('show');
+         selectedNotes.clear();
+         updateSelectionCount();
+         renderNoteList();
+         showPopup('Multi-select mode disabled.', 'info', 2000);
+       }
+     }
+
+     function selectAllNotes() {
+       if (isMultiSelectMode) {
+         selectedNotes.clear();
+         filteredNotes.forEach(note => {
+           selectedNotes.add(note._id || note.id);
+         });
+         updateSelectionCount();
+         renderNoteList();
+         showPopup(`Selected all ${filteredNotes.length} notes.`, 'info', 2000);
+       }
+     }
+
+     function toggleNoteSelection(noteId, event) {
+       event.stopPropagation();
+       
+       if (selectedNotes.has(noteId)) {
+         selectedNotes.delete(noteId);
+       } else {
+         selectedNotes.add(noteId);
+       }
+       
+       updateSelectionCount();
+       renderNoteList();
+     }
+
+     function updateSelectionCount() {
+       const count = selectedNotes.size;
+       const selectionCount = document.getElementById('selectionCount');
+       const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+       
+       selectionCount.textContent = `${count} selected`;
+       bulkDeleteBtn.disabled = count === 0;
+     }
+
+     async function bulkDeleteNotes() {
+       if (selectedNotes.size === 0) {
+         showPopup('No notes selected for deletion.', 'error');
+         return;
+       }
+
+       const confirmMessage = `Are you sure you want to delete ${selectedNotes.size} selected note(s)?`;
+       if (!confirm(confirmMessage)) {
+         return;
+       }
+
+       try {
+         const token = localStorage.getItem('token');
+         const deletePromises = Array.from(selectedNotes).map(noteId => 
+           fetch(`${API_BASE}/api/notes/${noteId}`, {
+             method: 'DELETE',
+             headers: {
+               'Authorization': `Bearer ${token}`,
+               'Content-Type': 'application/json'
+             }
+           })
+         );
+
+         const responses = await Promise.all(deletePromises);
+         const failedDeletes = responses.filter(response => !response.ok);
+
+         if (failedDeletes.length > 0) {
+           showPopup(`Failed to delete ${failedDeletes.length} note(s).`, 'error');
+         } else {
+           showPopup(`Successfully deleted ${selectedNotes.size} note(s)!`, 'success');
+         }
+
+         // Reset multi-select mode
+         selectedNotes.clear();
+         isMultiSelectMode = false;
+         const multiSelectBtn = document.getElementById('multiSelectBtn');
+         const multiSelectActions = document.getElementById('multiSelectActions');
+         
+         multiSelectBtn.textContent = 'Select Multiple';
+         multiSelectBtn.classList.remove('btn-danger');
+         multiSelectBtn.classList.add('btn-secondary');
+         multiSelectActions.classList.remove('show');
+         
+         // Reload notes
+         await loadNotes();
+       } catch (error) {
+         console.error('Error in bulk delete:', error);
+         showPopup('Failed to delete selected notes. Please try again.', 'error');
+       }
+     }
+
+     // API Functions
+    async function loadNotes() {
+      try {
+        const token = localStorage.getItem('token');
+        console.log('Loading notes from:', `${API_BASE}/api/notes`);
+        
+        const response = await fetch(`${API_BASE}/api/notes`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to load notes');
+        }
+        
+                 notes = await response.json();
+         filteredNotes = [...notes];
+         // Clear search input when notes are reloaded
+         document.getElementById('searchInput').value = '';
+         
+         // Reset multi-select mode if active
+         if (isMultiSelectMode) {
+           selectedNotes.clear();
+           isMultiSelectMode = false;
+           const multiSelectBtn = document.getElementById('multiSelectBtn');
+           const multiSelectActions = document.getElementById('multiSelectActions');
+           
+           multiSelectBtn.textContent = 'Select Multiple';
+           multiSelectBtn.classList.remove('btn-danger');
+           multiSelectBtn.classList.add('btn-secondary');
+           multiSelectActions.classList.remove('show');
+         }
+         
+         renderNoteList();
+         showEmptyState();
+      } catch (error) {
+        console.error('Error loading notes:', error);
+                 if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+           showPopup('Cannot connect to server. Please make sure the server is running on http://localhost:4000', 'error', 5000);
+         } else {
+           showPopup('Failed to load notes. Please try again.', 'error');
+         }
+      }
+    }
+
+    async function saveNote() {
+      const title = document.getElementById('noteTitle').value.trim();
+      const content = document.getElementById('noteContent').value.trim();
+      
+             if (!title) {
+         showPopup('Please enter a title for your note.', 'error');
+         return;
+       }
+
+      try {
+        const token = localStorage.getItem('token');
+        const noteData = {
+          title: title,
+          content: content
+        };
+
+        let response;
+        if (currentNoteId) {
+          // Update existing note
+          response = await fetch(`${API_BASE}/api/notes/${currentNoteId}`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(noteData)
+          });
+        } else {
+          // Create new note
+          response = await fetch(`${API_BASE}/api/notes`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(noteData)
+          });
+        }
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to save note');
+        }
+
+                 // Reload notes to get updated list
+         await loadNotes();
+         showEmptyState();
+         currentNoteId = null;
+         
+         // Show success message
+         const message = currentNoteId ? 'Note updated successfully!' : 'Note created successfully!';
+         showPopup(message, 'success');
+       } catch (error) {
+         console.error('Error saving note:', error);
+         showPopup(`Failed to save note: ${error.message}`, 'error');
+       }
+    }
+
+    async function deleteNote() {
+      if (!currentNoteId) return;
+      
+      if (confirm('Are you sure you want to delete this note?')) {
+        try {
+          const token = localStorage.getItem('token');
+          console.log('Attempting to delete note:', currentNoteId);
+          console.log('API URL:', `${API_BASE}/api/notes/${currentNoteId}`);
+          
+          const response = await fetch(`${API_BASE}/api/notes/${currentNoteId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          console.log('Response status:', response.status);
+          console.log('Response ok:', response.ok);
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to delete note');
+          }
+
+                     await loadNotes();
+           showEmptyState();
+           currentNoteId = null;
+           showPopup('Note deleted successfully!', 'success');
+         } catch (error) {
+           console.error('Error deleting note:', error);
+           if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+             showPopup('Cannot connect to server. Please make sure the server is running on http://localhost:4000', 'error', 5000);
+           } else {
+             showPopup(`Failed to delete note: ${error.message}`, 'error');
+           }
+         }
+      }
+    }
+
+    function searchNotes() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+      
+      if (searchTerm === '') {
+        filteredNotes = [...notes];
+      } else {
+        filteredNotes = notes.filter(note => 
+          note.title.toLowerCase().includes(searchTerm) ||
+          note.content.toLowerCase().includes(searchTerm)
+        );
+      }
+      
+      renderNoteList();
+    }
+
+    function editNote(noteId, event) {
+      event.stopPropagation(); // Prevent note selection
+      selectNote(noteId);
+    }
+
+    function deleteNoteFromList(noteId, event) {
+      event.stopPropagation(); // Prevent note selection
+      console.log('Deleting note with ID:', noteId);
+      currentNoteId = noteId;
+      deleteNote();
+    }
+
+         function goToDashboard() {
+       // Add animation before redirect
+       const dashboardTab = document.querySelector('.tab');
+       animateTabSwitch(dashboardTab);
+       
+       setTimeout(() => {
+         window.location.href = 'dashboard.html';
+       }, 300);
+     }
+
+     function showNotes() {
+       // This function is called when the My Note tab is clicked
+       // Since we're already on the notes page, we don't need to do anything
+       const notesTab = document.querySelector('.tab:nth-child(2)');
+       animateTabSwitch(notesTab);
+     }
+
+         function createNewNote() {
+       currentNoteId = null;
+       document.getElementById('noteTitle').value = '';
+       document.getElementById('noteContent').value = '';
+       document.getElementById('deleteBtn').style.display = 'none';
+       showNoteForm();
+       showPopup('Creating new note...', 'info', 2000);
+     }
+
+    function showNoteForm() {
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('noteForm').style.display = 'block';
+    }
+
+    function showEmptyState() {
+      document.getElementById('emptyState').style.display = 'block';
+      document.getElementById('noteForm').style.display = 'none';
+    }
+
+    function cancelEdit() {
+      showEmptyState();
+      currentNoteId = null;
+    }
+
+    function selectNote(noteId) {
+      const note = notes.find(n => (n._id || n.id) === noteId);
+      if (!note) {
+        console.error('Note not found:', noteId);
+        return;
+      }
+
+      currentNoteId = note._id || note.id;
+      document.getElementById('noteTitle').value = note.title;
+      document.getElementById('noteContent').value = note.content;
+      document.getElementById('deleteBtn').style.display = 'inline-block';
+      showNoteForm();
+
+      // Update active state in note list
+      document.querySelectorAll('.note-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+    }
+
+         function renderNoteList() {
+       const noteList = document.getElementById('noteList');
+       
+       if (filteredNotes.length === 0) {
+         if (notes.length === 0) {
+           noteList.innerHTML = '<p style="text-align: center; color: #666; margin-top: 2rem;">No notes yet</p>';
+         } else {
+           noteList.innerHTML = '<p style="text-align: center; color: #666; margin-top: 2rem;">No notes found matching your search</p>';
+         }
+         return;
+       }
+
+       noteList.innerHTML = filteredNotes.map(note => {
+         const date = new Date(note.updatedAt || note.createdAt).toLocaleDateString();
+         const preview = note.content.substring(0, 50) + (note.content.length > 50 ? '...' : '');
+         const noteId = note._id || note.id;
+         const isSelected = selectedNotes.has(noteId);
+         const isActive = currentNoteId === noteId;
+         
+         let noteClass = 'note-item';
+         if (isMultiSelectMode) {
+           noteClass += ' multi-select-mode';
+         }
+         if (isSelected) {
+           noteClass += ' selected';
+         }
+         if (isActive && !isMultiSelectMode) {
+           noteClass += ' active';
+         }
+         
+         const checkbox = isMultiSelectMode ? `
+           <div class="checkbox-wrapper">
+             <input type="checkbox" class="note-checkbox" 
+                    ${isSelected ? 'checked' : ''} 
+                    onclick="toggleNoteSelection('${noteId}', event)">
+           </div>
+         ` : '';
+         
+         const clickHandler = isMultiSelectMode ? 
+           `onclick="toggleNoteSelection('${noteId}', event)"` : 
+           `onclick="selectNote('${noteId}')"`;
+         
+         return `
+           <div class="${noteClass}" ${clickHandler}>
+             ${checkbox}
+             <div class="note-title">${note.title}</div>
+             <div class="note-preview">${preview}</div>
+             <div class="note-date">${date}</div>
+             ${!isMultiSelectMode ? `
+               <div class="note-actions">
+                 <button class="action-btn edit" onclick="editNote('${noteId}', event)" title="Edit note">
+                   ✏️
+                 </button>
+                 <button class="action-btn delete" onclick="deleteNoteFromList('${noteId}', event)" title="Delete note">
+                   🗑️
+                 </button>
+               </div>
+             ` : ''}
+           </div>
+         `;
+       }).join('');
+     }
+
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

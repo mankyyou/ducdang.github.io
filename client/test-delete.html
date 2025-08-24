@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 300px; }
+        .note-item { border: 1px solid #ddd; padding: 10px; margin: 5px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Delete API Test</h1>
+    
+    <div>
+        <h3>Step 1: Check Token</h3>
+        <button onclick="checkToken()">Check Current Token</button>
+        <div id="tokenStatus"></div>
+    </div>
+
+    <div>
+        <h3>Step 2: Load Notes</h3>
+        <button onclick="loadNotes()">Load My Notes</button>
+        <div id="notesList"></div>
+    </div>
+
+    <div>
+        <h3>Step 3: Test Delete</h3>
+        <input type="text" id="noteIdInput" placeholder="Enter note ID to delete">
+        <button onclick="testDelete()">Test Delete</button>
+        <div id="deleteResult"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:4000';
+
+        function checkToken() {
+            const token = localStorage.getItem('token');
+            const statusDiv = document.getElementById('tokenStatus');
+            
+            if (token) {
+                statusDiv.innerHTML = `<div class="status success">✅ Token found: ${token.substring(0, 20)}...</div>`;
+            } else {
+                statusDiv.innerHTML = `<div class="status error">❌ No token found. Please login first.</div>`;
+            }
+        }
+
+        async function loadNotes() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please login first');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/notes`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const notes = await response.json();
+                const notesDiv = document.getElementById('notesList');
+                
+                if (notes.length === 0) {
+                    notesDiv.innerHTML = '<div class="status info">No notes found. Create some notes first.</div>';
+                    return;
+                }
+
+                notesDiv.innerHTML = '<h4>Your Notes:</h4>' + notes.map(note => `
+                    <div class="note-item">
+                        <strong>ID:</strong> ${note._id}<br>
+                        <strong>Title:</strong> ${note.title}<br>
+                        <strong>Content:</strong> ${note.content.substring(0, 50)}...<br>
+                        <strong>Created:</strong> ${new Date(note.createdAt).toLocaleString()}
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('notesList').innerHTML = 
+                    `<div class="status error">❌ Error loading notes: ${error.message}</div>`;
+            }
+        }
+
+        async function testDelete() {
+            const token = localStorage.getItem('token');
+            const noteId = document.getElementById('noteIdInput').value.trim();
+            
+            if (!token) {
+                alert('Please login first');
+                return;
+            }
+
+            if (!noteId) {
+                alert('Please enter a note ID');
+                return;
+            }
+
+            try {
+                console.log('Testing delete for note ID:', noteId);
+                console.log('API URL:', `${API_BASE}/api/notes/${noteId}`);
+                
+                const response = await fetch(`${API_BASE}/api/notes/${noteId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+
+                const resultDiv = document.getElementById('deleteResult');
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    resultDiv.innerHTML = `<div class="status success">✅ Delete successful: ${result.message}</div>`;
+                } else {
+                    const errorData = await response.json();
+                    resultDiv.innerHTML = `<div class="status error">❌ Delete failed: ${errorData.message}</div>`;
+                }
+            } catch (error) {
+                console.error('Delete test error:', error);
+                document.getElementById('deleteResult').innerHTML = 
+                    `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // Auto-check token on page load
+        window.onload = function() {
+            checkToken();
+        };
+    </script>
+</body>
+</html>

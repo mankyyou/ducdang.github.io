@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import User from './models/User.js';
+import Note from './models/Note.js';
 
 dotenv.config();
 
@@ -18,7 +19,7 @@ app.use(cookieParser());
 // CORS (adjust origin in production)
 app.use(cors({
   origin: '*', // For demo; change to your frontend URL for production
-  methods: ['GET', 'POST', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -79,6 +80,84 @@ app.post('/api/auth/login', async (req, res) => {
 app.get('/api/auth/me', auth, async (req, res) => {
   const user = await User.findById(req.user.id).select('_id email createdAt');
   return res.json({ user });
+});
+
+// Note Routes
+app.get('/api/notes', auth, async (req, res) => {
+  try {
+    const notes = await Note.find({ user: req.user.id }).sort({ updatedAt: -1 });
+    return res.json(notes);
+  } catch (error) {
+    return res.status(500).json({ message: 'Error fetching notes' });
+  }
+});
+
+app.post('/api/notes', auth, async (req, res) => {
+  try {
+    const { title, content } = req.body;
+    if (!title || !content) {
+      return res.status(400).json({ message: 'Title and content are required' });
+    }
+
+    const note = await Note.create({
+      user: req.user.id,
+      title,
+      content
+    });
+
+    return res.status(201).json(note);
+  } catch (error) {
+    return res.status(500).json({ message: 'Error creating note' });
+  }
+});
+
+app.put('/api/notes/:id', auth, async (req, res) => {
+  try {
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid note ID' });
+    }
+
+    const { title, content } = req.body;
+    if (!title || !content) {
+      return res.status(400).json({ message: 'Title and content are required' });
+    }
+
+    const note = await Note.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
+      { title, content },
+      { new: true, runValidators: true }
+    );
+
+    if (!note) {
+      return res.status(404).json({ message: 'Note not found' });
+    }
+
+    return res.json(note);
+  } catch (error) {
+    console.error('Update note error:', error);
+    return res.status(500).json({ message: 'Error updating note' });
+  }
+});
+
+app.delete('/api/notes/:id', auth, async (req, res) => {
+  try {
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid note ID' });
+    }
+
+    const note = await Note.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+    
+    if (!note) {
+      return res.status(404).json({ message: 'Note not found' });
+    }
+
+    return res.json({ message: 'Note deleted successfully' });
+  } catch (error) {
+    console.error('Delete note error:', error);
+    return res.status(500).json({ message: 'Error deleting note' });
+  }
 });
 
 const PORT = process.env.PORT || 4000;
