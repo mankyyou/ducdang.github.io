@@ -18,19 +18,20 @@
     .sidebar {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
-      width: 350px;
+      width: 40%;
       padding: 1.5rem;
       box-shadow: 2px 0 20px rgba(0,0,0,0.1);
-      overflow-y: auto;
       overflow-x: hidden;
       border-right: 1px solid rgba(0,0,0,0.1);
       box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
     }
     
     .note-editor {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
-      flex: 1;
+      width: 60%;
       padding: 2rem;
       overflow-y: auto;
       overflow-x: hidden;
@@ -39,8 +40,9 @@
     
     .note-list {
       margin-top: 1rem;
-      max-height: calc(100vh - 250px);
+      flex: 1;
       overflow-y: auto;
+      overflow-x: hidden;
     }
     
     .note-item {
@@ -55,18 +57,18 @@
       animation: slideIn 0.3s ease;
     }
     
-                   .note-item:hover {
-        background: rgba(255, 255, 255, 0.95);
-        border-left-color: #667eea;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
-      }
+    .note-item:hover {
+      background: rgba(255, 255, 255, 0.95);
+      border-left-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+    }
     
-                   .note-item.active {
-        background: rgba(102, 126, 234, 0.1);
-        border-left-color: #667eea;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-      }
+    .note-item.active {
+      background: rgba(102, 126, 234, 0.1);
+      border-left-color: #667eea;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
     
     .note-title {
       font-weight: 600;
@@ -110,14 +112,14 @@
       font-size: 1.1rem;
     }
     
-                   .action-btn:hover {
-        background-color: rgba(102, 126, 234, 0.1);
-        transform: scale(1.1);
-      }
+    .action-btn:hover {
+      background-color: rgba(102, 126, 234, 0.1);
+      transform: scale(1.1);
+    }
     
-                   .action-btn.edit {
-        color: #667eea;
-      }
+    .action-btn.edit {
+      color: #667eea;
+    }
     
     .action-btn.delete {
       color: #e74c3c;
@@ -127,6 +129,15 @@
       margin-bottom: 1rem;
       position: relative;
       z-index: 1;
+      flex-shrink: 0;
+    }
+    
+    .sidebar > div:first-child {
+      flex-shrink: 0;
+    }
+    
+    .multi-select-actions {
+      flex-shrink: 0;
     }
     
     textarea.form-control {
@@ -152,11 +163,11 @@
       color: #333;
     }
     
-                   /* Multi-Select Styles */
-      .multi-select-mode {
-        background: #e3f2fd !important;
-        border-left-color: #0a66c2 !important;
-      }
+    /* Multi-Select Styles */
+    .multi-select-mode {
+      background: #e3f2fd !important;
+      border-left-color: #0a66c2 !important;
+    }
     
     .note-item.selected {
       background: #e8f5e8 !important;
@@ -187,25 +198,29 @@
       animation: fadeInUp 0.4s ease;
     }
     
-         /* Responsive Design */
-     @media (max-width: 768px) {
-       .main-container {
-         flex-direction: column;
-         height: auto;
-         overflow: visible;
-       }
-       .sidebar {
-         width: 100%;
-         max-height: 300px;
-         overflow-y: auto;
-         overflow-x: hidden;
-       }
-       .note-editor {
-         min-height: 400px;
-         overflow-y: auto;
-         overflow-x: hidden;
-       }
-     }
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .main-container {
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+      }
+      .sidebar {
+        width: 100%;
+        height: 300px;
+        overflow-y: hidden;
+      }
+      .sidebar .note-list {
+        overflow-y: auto;
+        height: calc(100% - 120px);
+      }
+      .note-editor {
+        width: 100%;
+        min-height: 400px;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+    }
   </style>
 </head>
 <body>
@@ -551,11 +566,11 @@
           showEmptyState();
           currentNoteId = null;
           showSuccess('Note deleted successfully!');
-                  } catch (error) {
-            console.error('Error deleting note:', error);
-            if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-              showError(`Cannot connect to server. Please make sure the server is running on ${API_BASE}`);
-            } else {
+        } catch (error) {
+          console.error('Error deleting note:', error);
+          if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+            showError(`Cannot connect to server. Please make sure the server is running on ${API_BASE}`);
+          } else {
             showError(`Failed to delete note: ${error.message}`);
           }
         }
@@ -630,7 +645,11 @@
       document.querySelectorAll('.note-item').forEach(item => {
         item.classList.remove('active');
       });
-      event.currentTarget.classList.add('active');
+      // Find and activate the current note item
+      const noteElement = document.querySelector(`[onclick="selectNote('${noteId}')"]`);
+      if (noteElement) {
+        noteElement.classList.add('active');
+      }
     }
 
     function renderNoteList() {

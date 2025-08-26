@@ -97,6 +97,19 @@ function goToMyNote() {
   window.location.href = 'mynote.html';
 }
 
+function goToLearnEnglish() {
+  // Smooth transition without jerky animation
+  const englishTab = document.getElementById('english-tab');
+  if (englishTab) {
+    // Simple active state change
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    englishTab.classList.add('active');
+  }
+  
+  // Immediate redirect without delay
+  window.location.href = 'learn-english.html';
+}
+
 // Tab animation function (simplified for smooth transitions)
 function animateTabSwitch(targetTab) {
   if (!targetTab) return;

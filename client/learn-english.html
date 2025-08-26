@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My learning</title>
+  <link rel="stylesheet" href="components/shared.css">
+  <style>
+    .english-container {
+      width: 95%;
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      animation: slideUp 0.3s ease-out;
+    }
+
+    .sub-tabs {
+      display: flex;
+      background: rgba(102, 126, 234, 0.1);
+      border-radius: 10px;
+      padding: 0.5rem;
+      margin-bottom: 2rem;
+      gap: 0.5rem;
+    }
+
+    .sub-tab {
+      flex: 1;
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      color: #666;
+    }
+
+    .sub-tab.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .word-card {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+      border: 1px solid rgba(102, 126, 234, 0.2);
+      border-radius: 15px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .word-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.15);
+    }
+
+    .word-main {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .word-text {
+      flex: 1;
+    }
+    
+    .speaker-icon {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+      flex-shrink: 0;
+    }
+    
+    .speaker-icon:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5);
+      background: linear-gradient(135deg, #764ba2, #667eea);
+    }
+    
+    .speaker-icon:active {
+      transform: scale(0.95);
+    }
+    
+    .speaker-icon.speaking {
+      animation: pulse-speaker 0.8s ease-in-out infinite;
+      background: linear-gradient(135deg, #4caf50, #45a049);
+    }
+    
+    @keyframes pulse-speaker {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .word-pronunciation {
+      font-style: italic;
+      color: #888;
+      margin-bottom: 1rem;
+    }
+
+    .word-meaning {
+      font-size: 1.1rem;
+      color: #333;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+
+    .word-example {
+      font-style: italic;
+      color: #666;
+      margin-bottom: 1rem;
+      padding-left: 1rem;
+      border-left: 3px solid #667eea;
+    }
+
+    .word-meta {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .word-tag {
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .level-beginner { background: #e8f5e8; color: #4caf50; }
+    .level-intermediate { background: #fff3e0; color: #ff9800; }
+    .level-advanced { background: #fce4ec; color: #e91e63; }
+
+    .category-tag {
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+    }
+
+    .learn-btn {
+      background: linear-gradient(135deg, #4caf50, #45a049);
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .learn-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    }
+
+    .learn-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .review-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .meaning-input {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid rgba(102, 126, 234, 0.3);
+      border-radius: 10px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .meaning-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+    }
+
+    .check-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .check-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .result-feedback {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 500;
+      display: none;
+    }
+
+    .result-correct {
+      background: rgba(76, 175, 80, 0.1);
+      color: #4caf50;
+      border: 2px solid rgba(76, 175, 80, 0.3);
+    }
+
+    .result-incorrect {
+      background: rgba(244, 67, 54, 0.1);
+      color: #f44336;
+      border: 2px solid rgba(244, 67, 54, 0.3);
+    }
+
+    .correct-answer {
+      margin-top: 0.5rem;
+      font-style: italic;
+      color: #666;
+    }
+
+    .correct-btn {
+      background: linear-gradient(135deg, #4caf50, #45a049);
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .incorrect-btn {
+      background: linear-gradient(135deg, #f44336, #da190b);
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #667eea;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s linear infinite;
+      margin-left: 10px;
+    }
+
+    .no-words {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+
+    .stats-container {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+    }
+
+    .filter-container {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .filter-label {
+      font-weight: 600;
+      color: #333;
+      font-size: 1rem;
+      white-space: nowrap;
+    }
+
+    .category-select {
+      flex: 1;
+      max-width: 300px;
+      padding: 0.75rem 1rem;
+      border: 2px solid rgba(102, 126, 234, 0.3);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: white;
+      color: #333;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .category-select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+    }
+
+    .category-select:hover {
+      border-color: #667eea;
+    }
+
+    .admin-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .import-section {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      border-left: 4px solid #e74c3c;
+    }
+
+    .import-section h4 {
+      color: #333;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .import-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .import-results {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      padding: 2rem;
+      margin-top: 2rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      border-left: 4px solid #28a745;
+    }
+
+    .import-results h4 {
+      color: #28a745;
+      margin-bottom: 1.5rem;
+    }
+
+    .result-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .result-stat {
+      text-align: center;
+      padding: 1rem;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .result-stat.success {
+      border-left: 4px solid #28a745;
+    }
+
+    .result-stat.warning {
+      border-left: 4px solid #ffc107;
+    }
+
+    .result-stat.error {
+      border-left: 4px solid #dc3545;
+    }
+
+    .result-number {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .result-label {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
+
+    .result-details {
+      margin-top: 1rem;
+    }
+
+    .result-list {
+      max-height: 200px;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .result-item {
+      padding: 0.5rem;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      font-size: 0.9rem;
+    }
+
+    .result-item:last-child {
+      border-bottom: none;
+    }
+
+    .result-item.success {
+      color: #28a745;
+    }
+
+    .result-item.error {
+      color: #dc3545;
+    }
+
+    .result-item.warning {
+      color: #ffc107;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #28a745, #20c997);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+
+    .btn-success:hover {
+      background: linear-gradient(135deg, #218838, #1c9a6b);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+
+    .btn-success:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .auto-populate-controls {
+      margin-top: 1rem;
+    }
+
+    .live-stats {
+      animation: fadeIn 0.5s ease;
+    }
+
+    .populate-progress {
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #667eea;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .english-container {
+        width: 95%;
+        margin: 1rem auto;
+        padding: 1.5rem;
+      }
+      
+      .word-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .review-actions {
+        flex-direction: column;
+      }
+
+      .stats-container {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .filter-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+      }
+
+      .filter-label {
+        text-align: center;
+      }
+
+      .category-select {
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Include shared header -->
+  <div id="header-container"></div>
+
+  <div class="english-container">
+    <div class="sub-tabs">
+      <button class="sub-tab active" id="new-words-tab" onclick="switchSubTab('new-words')">
+        📚 New Words
+      </button>
+      <button class="sub-tab" id="reviews-tab" onclick="switchSubTab('reviews')">
+        🔄 Reviews
+      </button>
+      <button class="sub-tab" id="admin-tab" onclick="switchSubTab('admin')" style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white;">
+        ⚙️ Admin
+      </button>
+    </div>
+
+    <!-- New Words Tab -->
+    <div class="tab-content active" id="new-words-content">
+      <div class="stats-container" id="new-words-stats">
+        <div class="stat-item">
+          <div class="stat-number" id="daily-progress">0</div>
+          <div class="stat-label">Words Learned Today</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="total-learned">0</div>
+          <div class="stat-label">Total Words Learned</div>
+        </div>
+      </div>
+      
+      <!-- Category Filter -->
+      <div class="filter-container">
+        <label for="categoryFilter" class="filter-label">📚 Chọn chủ đề:</label>
+        <select id="categoryFilter" class="category-select" onchange="filterByCategory()">
+          <option value="">Tất cả chủ đề</option>
+          <option value="emotions">Cảm xúc (Emotions)</option>
+          <option value="personality">Tính cách (Personality)</option>
+          <option value="behavior">Hành vi (Behavior)</option>
+          <option value="character">Tính cách (Character)</option>
+          <option value="business">Kinh doanh (Business)</option>
+          <option value="work">Công việc (Work)</option>
+          <option value="general">Tổng quát (General)</option>
+          <option value="description">Miêu tả (Description)</option>
+        </select>
+      </div>
+      
+      <div id="daily-words-container">
+        <div class="loading" id="daily-loading">Loading today's words...</div>
+        <div id="daily-words-list"></div>
+      </div>
+    </div>
+
+    <!-- Reviews Tab -->
+    <div class="tab-content" id="reviews-content">
+      <div class="stats-container" id="review-stats">
+        <div class="stat-item">
+          <div class="stat-number" id="review-count">0</div>
+          <div class="stat-label">Words Available for Review</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="review-streak">0</div>
+          <div class="stat-label">Review Sessions Today</div>
+        </div>
+      </div>
+      
+      <div id="review-words-container">
+        <div class="loading" id="review-loading">Loading review words...</div>
+        <div id="review-words-list"></div>
+      </div>
+    </div>
+
+    <!-- Admin Tab -->
+    <div class="tab-content" id="admin-content">
+      <div class="admin-container">
+        <h3 style="color: #e74c3c; margin-bottom: 2rem;">⚙️ Admin Panel - Import Words</h3>
+        
+
+
+
+        
+
+        
+        <!-- Database Statistics -->
+        <div class="import-section">
+          <h4>📊 Database Statistics</h4>
+          <div class="db-stats" id="dbStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+            <div style="text-align: center; padding: 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 10px;">
+              <div id="totalWordsCount" style="font-size: 1.5rem; font-weight: 700; color: #667eea;">-</div>
+              <div style="font-size: 0.8rem; color: #666;">Total Words</div>
+            </div>
+            <div style="text-align: center; padding: 1rem; background: rgba(40, 167, 69, 0.1); border-radius: 10px;">
+              <div id="userLearnedCount" style="font-size: 1.5rem; font-weight: 700; color: #28a745;">-</div>
+              <div style="font-size: 0.8rem; color: #666;">You Learned</div>
+            </div>
+            <div style="text-align: center; padding: 1rem; background: rgba(255, 193, 7, 0.1); border-radius: 10px;">
+              <div id="availableWordsCount" style="font-size: 1.5rem; font-weight: 700; color: #ffc107;">-</div>
+              <div style="font-size: 0.8rem; color: #666;">Available</div>
+            </div>
+          </div>
+          <button class="btn btn-secondary" onclick="loadDatabaseStats()" style="width: 100%; margin-bottom: 1rem;">
+            🔄 Refresh Stats
+          </button>
+        </div>
+
+        <!-- API Testing Section -->
+        <div class="import-section">
+          <h4>🧪 Test API Connection</h4>
+          <div class="import-form">
+            <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+              <input type="text" id="testWord" class="form-control" placeholder="Enter word to test (e.g: hello)" value="hello" style="flex: 1;">
+              <select id="testApiSource" class="form-control" style="width: 200px;">
+                <option value="free-dictionary">Free Dictionary API</option>
+                <option value="wordnik">Wordnik API</option>
+              </select>
+              <button class="btn btn-secondary" onclick="testApiConnection()" id="testApiBtn">🧪 Test API</button>
+            </div>
+            <div class="test-results" id="testResults" style="margin-top: 1rem; padding: 1rem; border-radius: 8px; display: none;">
+              <h5 id="testResultTitle">Test Results</h5>
+              <pre id="testResultData" style="background: #f8f9fa; padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 0.9rem;"></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Auto-Population Section -->
+        <div class="import-section">
+          <h4>🤖 Auto-Populate Database</h4>
+          <p style="color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">
+            Automatically import hundreds of words from dictionary APIs to populate your vocabulary database
+          </p>
+          <div class="import-form">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+              <div>
+                <label style="font-weight: 600; color: #333; margin-bottom: 0.5rem; display: block;">Number of Words</label>
+                <select id="populateCount" class="form-control">
+                  <option value="50">50 words</option>
+                  <option value="100" selected>100 words</option>
+                  <option value="200">200 words</option>
+                  <option value="500">500 words</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-weight: 600; color: #333; margin-bottom: 0.5rem; display: block;">Categories</label>
+                <select id="populateCategories" class="form-control">
+                  <option value="all">All Categories</option>
+                  <option value="general">General & Common</option>
+                  <option value="emotions">Emotions</option>
+                  <option value="personality">Personality</option>
+                  <option value="business">Business</option>
+                  <option value="technology">Technology</option>
+                  <option value="science">Science</option>
+                  <option value="education">Education</option>
+                  <option value="health">Health</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="auto-populate-controls" style="display: flex; gap: 1rem; align-items: center;">
+              <button class="btn btn-success" onclick="startAutoPopulation()" id="populateBtn" style="flex: 1;">
+                🚀 Start Auto-Population
+              </button>
+              <button class="btn btn-danger" onclick="stopAutoPopulation()" id="stopBtn" style="display: none;">
+                ⏹️ Stop
+              </button>
+            </div>
+            
+            <div class="populate-progress" id="populateProgress" style="margin-top: 1rem; display: none;">
+              <div class="progress-bar" style="width: 100%; height: 15px; background: #f0f0f0; border-radius: 8px;">
+                <div class="progress-fill" id="populateProgressFill" style="height: 100%; background: linear-gradient(135deg, #28a745, #20c997); border-radius: 8px; width: 0%; transition: width 0.5s ease;"></div>
+              </div>
+              <div class="progress-text" id="populateProgressText" style="text-align: center; margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                Initializing...
+              </div>
+              <div class="live-stats" id="liveStats" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 1rem;">
+                <div style="text-align: center; padding: 0.5rem; background: rgba(40, 167, 69, 0.1); border-radius: 5px;">
+                  <div id="liveImported" style="font-weight: 700; color: #28a745;">0</div>
+                  <div style="font-size: 0.8rem; color: #666;">Imported</div>
+                </div>
+                <div style="text-align: center; padding: 0.5rem; background: rgba(255, 193, 7, 0.1); border-radius: 5px;">
+                  <div id="liveExisting" style="font-weight: 700; color: #ffc107;">0</div>
+                  <div style="font-size: 0.8rem; color: #666;">Existing</div>
+                </div>
+                <div style="text-align: center; padding: 0.5rem; background: rgba(220, 53, 69, 0.1); border-radius: 5px;">
+                  <div id="liveFailed" style="font-weight: 700; color: #dc3545;">0</div>
+                  <div style="font-size: 0.8rem; color: #666;">Failed</div>
+                </div>
+                <div style="text-align: center; padding: 0.5rem; background: rgba(102, 126, 234, 0.1); border-radius: 5px;">
+                  <div id="liveTotal" style="font-weight: 700; color: #667eea;">0</div>
+                  <div style="font-size: 0.8rem; color: #666;">Total</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Import Results -->
+        <div class="import-results" id="importResults" style="display: none;">
+          <h4>📊 Import Results</h4>
+          <div id="importSummary"></div>
+          <div id="importDetails"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="components/shared.js"></script>
+  <script>
+    let currentSubTab = 'new-words';
+    let dailyWords = [];
+    let allDailyWords = []; // Store all words for filtering
+    let reviewWords = [];
+    
+    // Check authentication
+    checkAuth();
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      loadHeader();
+    });
+
+    // Load shared header
+    async function loadHeader() {
+      try {
+        const response = await fetch('components/header.html');
+        const headerHtml = await response.text();
+        document.getElementById('header-container').innerHTML = headerHtml;
+        
+        // Initialize shared components
+        initializeSharedComponents('Learn English', 'english-tab');
+        
+        // Load initial data
+        await loadNewWords();
+        await loadStats();
+        
+        // Try to seed vocabulary if empty
+        await seedVocabularyIfEmpty();
+        
+      } catch (error) {
+        console.error('Error loading header:', error);
+      }
+    }
+
+    // Switch between sub tabs
+    function switchSubTab(tabName) {
+      // Update tab buttons
+      document.querySelectorAll('.sub-tab').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(tabName + '-tab').classList.add('active');
+      
+      // Update content
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      document.getElementById(tabName + '-content').classList.add('active');
+      
+      currentSubTab = tabName;
+      
+      // Load appropriate data
+      if (tabName === 'new-words') {
+        // Reset category filter when switching to new words tab
+        document.getElementById('categoryFilter').value = '';
+        loadNewWords();
+      } else if (tabName === 'reviews') {
+        loadReviewWords();
+      } else if (tabName === 'admin') {
+        // Admin tab loaded
+        hideImportResults();
+        loadDatabaseStats();
+      }
+    }
+
+    // Load daily new words
+    async function loadNewWords() {
+      document.getElementById('daily-loading').style.display = 'block';
+      document.getElementById('daily-words-list').innerHTML = '';
+      
+      try {
+        const response = await fetch(API_BASE + '/api/vocabulary/daily', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (response.ok) {
+          allDailyWords = await response.json();
+          dailyWords = [...allDailyWords]; // Copy all words initially
+          displayDailyWords(dailyWords);
+        } else {
+          showError('Failed to load daily words');
+        }
+      } catch (error) {
+        console.error('Error loading daily words:', error);
+        showError('Error loading daily words');
+      }
+      
+      document.getElementById('daily-loading').style.display = 'none';
+    }
+
+    // Display daily words
+    function displayDailyWords(words) {
+      const container = document.getElementById('daily-words-list');
+      
+      if (words.length === 0) {
+        container.innerHTML = '<div class="no-words">🎉 Great! You\'ve learned all available words. Check back later for more!</div>';
+        return;
+      }
+      
+      container.innerHTML = words.map(word => `
+        <div class="word-card" id="word-${word._id}">
+          <div class="word-main">
+            <span class="word-text">${word.word}</span>
+            <button class="speaker-icon" id="speaker-new-${word._id}" onclick="pronounceWord('${word.word}', 'speaker-new-${word._id}')" title="Phát âm từ này">
+              🔊
+            </button>
+          </div>
+          <div class="word-pronunciation">${word.pronunciation || ''}</div>
+          <div class="word-meaning">${word.meaning}</div>
+          <div class="word-example">"${word.example || ''}"</div>
+          <div class="word-meta">
+            <span class="word-tag level-${word.level}">${word.level}</span>
+            <span class="category-tag">${word.category}</span>
+          </div>
+          <button class="learn-btn" onclick="markAsLearned('${word._id}')">
+            ✓ I've Learned This Word
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // Filter words by category
+    function filterByCategory() {
+      const selectedCategory = document.getElementById('categoryFilter').value;
+      
+      if (!selectedCategory) {
+        // Show all words if no category selected
+        dailyWords = [...allDailyWords];
+      } else {
+        // Filter words by selected category
+        dailyWords = allDailyWords.filter(word => word.category === selectedCategory);
+      }
+      
+      displayDailyWords(dailyWords);
+      
+      // Show info about filter
+      const totalWords = allDailyWords.length;
+      const filteredWords = dailyWords.length;
+      
+      if (selectedCategory) {
+        const categoryName = document.querySelector(`option[value="${selectedCategory}"]`).textContent;
+        showInfo(`Hiển thị ${filteredWords}/${totalWords} từ vựng thuộc chủ đề "${categoryName}"`);
+      } else {
+        showInfo(`Hiển thị tất cả ${totalWords} từ vựng`);
+      }
+    }
+
+    // Mark word as learned
+    async function markAsLearned(vocabularyId) {
+      try {
+        const response = await fetch(API_BASE + '/api/vocabulary/learn', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ vocabularyId })
+        });
+
+        if (response.ok) {
+          // Remove word from both arrays
+          allDailyWords = allDailyWords.filter(word => word._id !== vocabularyId);
+          dailyWords = dailyWords.filter(word => word._id !== vocabularyId);
+          
+          // Remove word from display
+          const wordCard = document.getElementById(`word-${vocabularyId}`);
+          if (wordCard) {
+            wordCard.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => {
+              wordCard.remove();
+              
+              // Check if no more words
+              const remainingWords = document.querySelectorAll('.word-card');
+              if (remainingWords.length === 0) {
+                const selectedCategory = document.getElementById('categoryFilter').value;
+                if (selectedCategory) {
+                  document.getElementById('daily-words-list').innerHTML = 
+                    '<div class="no-words">🎉 Bạn đã hoàn thành tất cả từ vựng trong chủ đề này!</div>';
+                } else {
+                  document.getElementById('daily-words-list').innerHTML = 
+                    '<div class="no-words">🎉 Excellent! You\'ve completed all words for today!</div>';
+                }
+              }
+            }, 300);
+          }
+          
+          showSuccess('Word marked as learned!');
+          await loadStats(); // Refresh stats
+        } else {
+          const error = await response.json();
+          showError(error.message || 'Failed to mark word as learned');
+        }
+      } catch (error) {
+        console.error('Error marking word as learned:', error);
+        showError('Error marking word as learned');
+      }
+    }
+
+    // Load review words
+    async function loadReviewWords() {
+      document.getElementById('review-loading').style.display = 'block';
+      document.getElementById('review-words-list').innerHTML = '';
+      
+      try {
+        const response = await fetch(API_BASE + '/api/vocabulary/reviews', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (response.ok) {
+          reviewWords = await response.json();
+          displayReviewWords(reviewWords);
+        } else {
+          showError('Failed to load review words');
+        }
+      } catch (error) {
+        console.error('Error loading review words:', error);
+        showError('Error loading review words');
+      }
+      
+      document.getElementById('review-loading').style.display = 'none';
+    }
+
+    // Display review words
+    function displayReviewWords(words) {
+      const container = document.getElementById('review-words-list');
+      
+      if (words.length === 0) {
+        container.innerHTML = '<div class="no-words">📖 No words to review yet. Learn some new words first!</div>';
+        return;
+      }
+      
+      container.innerHTML = words.map(learnedWord => {
+        const word = learnedWord.vocabulary;
+        return `
+          <div class="word-card" id="review-${word._id}">
+            <div class="word-main">
+              <span class="word-text">${word.word}</span>
+              <button class="speaker-icon" id="speaker-review-${word._id}" onclick="pronounceWord('${word.word}', 'speaker-review-${word._id}')" title="Phát âm từ này">
+                🔊
+              </button>
+            </div>
+            <div class="word-pronunciation">${word.pronunciation || ''}</div>
+            <div class="word-example">"${word.example || ''}"</div>
+            <div class="word-meta">
+              <span class="word-tag level-${word.level}">${word.level}</span>
+              <span class="category-tag">${word.category}</span>
+              <span class="word-tag" style="background: rgba(102, 126, 234, 0.1); color: #667eea;">
+                Reviewed ${learnedWord.reviewCount} times
+              </span>
+            </div>
+            <input type="text" class="meaning-input" id="input-${word._id}" 
+                   placeholder="Nhập nghĩa của từ này..." autocomplete="off"
+                   onkeypress="if(event.key==='Enter') checkAnswer('${word._id}', '${word.meaning}')">
+            <div class="review-actions">
+              <button class="check-btn" onclick="checkAnswer('${word._id}', '${word.meaning}')">
+                🔍 Kiểm tra
+              </button>
+            </div>
+            <div class="result-feedback" id="result-${word._id}">
+              <div class="feedback-text"></div>
+              <div class="correct-answer"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Check answer function with fuzzy matching
+    function checkAnswer(vocabularyId, correctMeaning) {
+      const userInput = document.getElementById(`input-${vocabularyId}`).value.trim();
+      const resultDiv = document.getElementById(`result-${vocabularyId}`);
+      const feedbackText = resultDiv.querySelector('.feedback-text');
+      const correctAnswerDiv = resultDiv.querySelector('.correct-answer');
+      
+      if (!userInput) {
+        showError('Vui lòng nhập nghĩa của từ');
+        return;
+      }
+      
+      // Simple fuzzy matching - check if user input contains key words from correct meaning
+      const isCorrect = checkFuzzyMatch(userInput, correctMeaning);
+      
+      resultDiv.style.display = 'block';
+      
+      if (isCorrect) {
+        resultDiv.className = 'result-feedback result-correct';
+        feedbackText.textContent = '✅ Chính xác! Bạn đã nhớ từ này rất tốt.';
+        
+        // Auto proceed to mark as reviewed after 2 seconds
+        setTimeout(() => {
+          reviewWord(vocabularyId, true);
+        }, 2000);
+      } else {
+        resultDiv.className = 'result-feedback result-incorrect';
+        feedbackText.textContent = '❌ Chưa chính xác. Đây là nghĩa đúng:';
+        correctAnswerDiv.textContent = correctMeaning;
+        
+        // Show continue button after showing correct answer
+        setTimeout(() => {
+          const checkBtn = document.querySelector(`#review-${vocabularyId} .check-btn`);
+          checkBtn.textContent = '➡️ Tiếp tục';
+          checkBtn.onclick = () => reviewWord(vocabularyId, false);
+        }, 1000);
+      }
+    }
+    
+    // Fuzzy matching function to check if answer is approximately correct
+    function checkFuzzyMatch(userInput, correctMeaning) {
+      // Normalize both strings - lowercase, remove punctuation, trim spaces
+      const normalizeText = (text) => {
+        return text.toLowerCase()
+                   .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+                   .replace(/\s+/g, " ")
+                   .trim();
+      };
+      
+      const normalizedUser = normalizeText(userInput);
+      const normalizedCorrect = normalizeText(correctMeaning);
+      
+      // Split into words
+      const userWords = normalizedUser.split(' ');
+      const correctWords = normalizedCorrect.split(' ');
+      
+      // Check if user input contains at least 50% of the key words
+      let matchCount = 0;
+      const minLength = 2; // Ignore very short words
+      
+      const significantCorrectWords = correctWords.filter(word => word.length >= minLength);
+      
+      for (const userWord of userWords) {
+        if (userWord.length >= minLength) {
+          for (const correctWord of significantCorrectWords) {
+            // Check exact match or if words contain each other
+            if (userWord.includes(correctWord) || correctWord.includes(userWord)) {
+              matchCount++;
+              break;
+            }
+          }
+        }
+      }
+      
+      // Consider correct if at least 50% of significant words match
+      const threshold = Math.max(1, Math.ceil(significantCorrectWords.length * 0.5));
+      return matchCount >= threshold;
+    }
+
+    // Review word
+    async function reviewWord(vocabularyId, correct) {
+      try {
+        const response = await fetch(API_BASE + '/api/vocabulary/review', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ vocabularyId, correct })
+        });
+
+        if (response.ok) {
+          // Remove word from display
+          const wordCard = document.getElementById(`review-${vocabularyId}`);
+          if (wordCard) {
+            wordCard.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => {
+              wordCard.remove();
+              
+              // Check if no more words
+              const remainingWords = document.querySelectorAll('.word-card');
+              if (remainingWords.length === 0) {
+                document.getElementById('review-words-list').innerHTML = 
+                  '<div class="no-words">🎉 Great job! You\'ve completed all reviews for now!</div>';
+              }
+            }, 300);
+          }
+          
+          const message = correct ? 'Great! Keep it up!' : 'No worries, practice makes perfect!';
+          showSuccess(message);
+          await loadStats(); // Refresh stats
+        } else {
+          const error = await response.json();
+          showError(error.message || 'Failed to record review');
+        }
+      } catch (error) {
+        console.error('Error reviewing word:', error);
+        showError('Error reviewing word');
+      }
+    }
+
+    // Load stats
+    async function loadStats() {
+      try {
+        // Get total learned words
+        const reviewResponse = await fetch(API_BASE + '/api/vocabulary/reviews', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (reviewResponse.ok) {
+          const allLearnedWords = await reviewResponse.json();
+          document.getElementById('total-learned').textContent = allLearnedWords.length;
+          document.getElementById('review-count').textContent = allLearnedWords.length;
+          
+          // Calculate today's progress (simplified)
+          const today = new Date().toDateString();
+          const todayLearned = allLearnedWords.filter(lw => 
+            new Date(lw.learnedAt).toDateString() === today
+          ).length;
+          document.getElementById('daily-progress').textContent = todayLearned;
+          
+          // Calculate review sessions today (simplified)
+          const todayReviewed = allLearnedWords.filter(lw => 
+            lw.lastReviewedAt && new Date(lw.lastReviewedAt).toDateString() === today
+          ).length;
+          document.getElementById('review-streak').textContent = todayReviewed;
+        }
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    // Seed vocabulary if empty (for first-time users)
+    async function seedVocabularyIfEmpty() {
+      try {
+        // Check if there are any daily words
+        if (dailyWords.length === 0) {
+          const response = await fetch(API_BASE + '/api/vocabulary/seed', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          
+          if (response.ok) {
+            console.log('Vocabulary seeded successfully');
+            // Reload words after seeding
+            await loadNewWords();
+          }
+        }
+      } catch (error) {
+        console.error('Error seeding vocabulary:', error);
+      }
+    }
+
+    // Admin Functions for importing words
+    function hideImportResults() {
+      document.getElementById('importResults').style.display = 'none';
+    }
+
+    function showImportResults() {
+      document.getElementById('importResults').style.display = 'block';
+    }
+
+    function clearInputs() {
+      document.getElementById('singleWordInput').value = '';
+      document.getElementById('batchWordsInput').value = '';
+    }
+
+    // Load database statistics
+    async function loadDatabaseStats() {
+      try {
+        const response = await fetch(API_BASE + '/api/vocabulary/stats', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (response.ok) {
+          const stats = await response.json();
+          
+          document.getElementById('totalWordsCount').textContent = stats.totalWords.toLocaleString();
+          document.getElementById('userLearnedCount').textContent = stats.userLearnedCount.toLocaleString();
+          document.getElementById('availableWordsCount').textContent = stats.availableWords.toLocaleString();
+          
+          // Show suggestion if database is low on words
+          if (stats.totalWords < 50) {
+            showInfo(`Database has only ${stats.totalWords} words. Consider using Auto-Populate to add more vocabulary.`);
+          }
+          
+        } else {
+          console.error('Failed to load database stats');
+          document.getElementById('totalWordsCount').textContent = 'Error';
+          document.getElementById('userLearnedCount').textContent = 'Error';
+          document.getElementById('availableWordsCount').textContent = 'Error';
+        }
+      } catch (error) {
+        console.error('Error loading database stats:', error);
+        document.getElementById('totalWordsCount').textContent = 'Error';
+        document.getElementById('userLearnedCount').textContent = 'Error';
+        document.getElementById('availableWordsCount').textContent = 'Error';
+      }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Auto-Population Functions
+    let isPopulating = false;
+    
+    async function startAutoPopulation() {
+      if (isPopulating) return;
+      
+      const count = parseInt(document.getElementById('populateCount').value);
+      const categories = [document.getElementById('populateCategories').value];
+      
+      const confirmMessage = `This will automatically import ${count} words from dictionary APIs.\nThis process may take several minutes. Continue?`;
+      if (!confirm(confirmMessage)) return;
+      
+      isPopulating = true;
+      
+      // Update UI
+      const populateBtn = document.getElementById('populateBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      const progressDiv = document.getElementById('populateProgress');
+      const progressFill = document.getElementById('populateProgressFill');
+      const progressText = document.getElementById('populateProgressText');
+      
+      populateBtn.style.display = 'none';
+      stopBtn.style.display = 'block';
+      progressDiv.style.display = 'block';
+      progressFill.style.width = '0%';
+      progressText.textContent = 'Starting auto-population...';
+      
+      // Reset live stats
+      updateLiveStats(0, 0, 0, 0);
+      
+      try {
+        showInfo(`Starting auto-population of ${count} words...`);
+        
+        const response = await fetch(API_BASE + '/api/vocabulary/auto-populate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ count, categories })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          // Update progress to 100%
+          progressFill.style.width = '100%';
+          progressText.textContent = `✅ Completed! ${result.summary}`;
+          
+          // Update final stats
+          updateLiveStats(
+            result.results.imported,
+            result.results.existing,
+            result.results.failed,
+            result.results.total
+          );
+          
+          showSuccess(`Auto-population completed! ${result.summary}`);
+          
+          // Display detailed results
+          displayAutoPopulationResults(result);
+          
+          // Refresh word list if on new-words tab
+          if (currentSubTab === 'new-words') {
+            await loadNewWords();
+          }
+          
+          // Refresh database stats
+          await loadDatabaseStats();
+          
+        } else {
+          progressText.textContent = '❌ Auto-population failed';
+          const errorMessage = result.error ? `${result.message}: ${result.error}` : result.message;
+          showError(errorMessage || 'Failed to auto-populate vocabulary');
+          
+          // Show detailed error if available
+          if (result.errors && result.errors.length > 0) {
+            console.error('Auto-population errors:', result.errors);
+          }
+        }
+        
+      } catch (error) {
+        progressText.textContent = '❌ Network error occurred';
+        console.error('Error in auto-population:', error);
+        showError('Error in auto-population. Please try again.');
+      }
+      
+      // Reset UI
+      isPopulating = false;
+      populateBtn.style.display = 'block';
+      stopBtn.style.display = 'none';
+    }
+    
+    function stopAutoPopulation() {
+      // Note: This is a simple client-side stop
+      // For a real implementation, you'd need server-side cancellation
+      isPopulating = false;
+      const populateBtn = document.getElementById('populateBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      const progressText = document.getElementById('populateProgressText');
+      
+      populateBtn.style.display = 'block';
+      stopBtn.style.display = 'none';
+      progressText.textContent = '⏹️ Stopped by user';
+      
+      showInfo('Auto-population stopped');
+    }
+    
+    function updateLiveStats(imported, existing, failed, total) {
+      document.getElementById('liveImported').textContent = imported;
+      document.getElementById('liveExisting').textContent = existing;
+      document.getElementById('liveFailed').textContent = failed;
+      document.getElementById('liveTotal').textContent = total;
+    }
+    
+    function displayAutoPopulationResults(result) {
+      showImportResults();
+      
+      const summaryDiv = document.getElementById('importSummary');
+      const detailsDiv = document.getElementById('importDetails');
+      
+      summaryDiv.innerHTML = `
+        <div class="result-summary">
+          <div class="result-stat success">
+            <div class="result-number">${result.results.imported}</div>
+            <div class="result-label">New Words Added</div>
+          </div>
+          <div class="result-stat warning">
+            <div class="result-number">${result.results.existing}</div>
+            <div class="result-label">Already Existed</div>
+          </div>
+          <div class="result-stat error">
+            <div class="result-number">${result.results.failed}</div>
+            <div class="result-label">Failed to Import</div>
+          </div>
+          <div class="result-stat">
+            <div class="result-number">${result.results.total}</div>
+            <div class="result-label">Total Processed</div>
+          </div>
+        </div>
+      `;
+      
+      let detailsHtml = '<div class="result-details">';
+      
+      if (result.results.words && result.results.words.length > 0) {
+        detailsHtml += `
+          <h5>✅ Successfully Added Words (${result.results.words.length}):</h5>
+          <div class="result-list">
+        `;
+        result.results.words.forEach(word => {
+          detailsHtml += `<div class="result-item success">✓ ${word.word} (${word.source}) - ${word.meaning}</div>`;
+        });
+        detailsHtml += '</div>';
+      }
+      
+      detailsHtml += `
+        <div style="margin-top: 2rem; padding: 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 10px;">
+          <h5 style="color: #667eea; margin-bottom: 0.5rem;">🎯 Auto-Population Summary</h5>
+          <p style="margin: 0; color: #666;">${result.summary}</p>
+          <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #888;">
+            Words were automatically fetched from multiple dictionary APIs and added to your database.
+          </p>
+        </div>
+      `;
+      
+      detailsHtml += '</div>';
+      detailsDiv.innerHTML = detailsHtml;
+    }
+    
+    // Test API Connection
+    async function testApiConnection() {
+      const testWord = document.getElementById('testWord').value.trim();
+      const apiSource = document.getElementById('testApiSource').value;
+      const testBtn = document.getElementById('testApiBtn');
+      const testResults = document.getElementById('testResults');
+      const testResultTitle = document.getElementById('testResultTitle');
+      const testResultData = document.getElementById('testResultData');
+      
+      if (!testWord) {
+        showError('Please enter a word to test');
+        return;
+      }
+      
+      // Update UI
+      testBtn.textContent = '⏳ Testing...';
+      testBtn.disabled = true;
+      testResults.style.display = 'none';
+      
+      try {
+        const response = await fetch(API_BASE + '/api/vocabulary/test-api', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ word: testWord, apiSource: apiSource })
+        });
+        
+        const result = await response.json();
+        
+        // Show results
+        testResults.style.display = 'block';
+        testResults.style.border = result.success ? '2px solid #28a745' : '2px solid #dc3545';
+        testResults.style.backgroundColor = result.success ? 'rgba(40, 167, 69, 0.1)' : 'rgba(220, 53, 69, 0.1)';
+        
+        testResultTitle.textContent = result.success ? 
+          `✅ API Test Successful - ${result.apiName}` : 
+          `❌ API Test Failed - ${result.apiName}`;
+        testResultTitle.style.color = result.success ? '#28a745' : '#dc3545';
+        
+        testResultData.textContent = JSON.stringify(result, null, 2);
+        
+        if (result.success) {
+          showSuccess(`API test successful! Word "${testWord}" found.`);
+        } else {
+          showError(`API test failed: ${result.error}`);
+        }
+        
+      } catch (error) {
+        console.error('Error testing API:', error);
+        testResults.style.display = 'block';
+        testResults.style.border = '2px solid #dc3545';
+        testResults.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
+        
+        testResultTitle.textContent = '❌ Network Error';
+        testResultTitle.style.color = '#dc3545';
+        testResultData.textContent = `Network error: ${error.message}`;
+        
+        showError('Network error during API test');
+      } finally {
+        testBtn.textContent = '🧪 Test API';
+        testBtn.disabled = false;
+      }
+    }
+    
+    // Pronounce word using Web Speech API
+    function pronounceWord(word, speakerId = null) {
+      // Check if Web Speech API is supported
+      if (!('speechSynthesis' in window)) {
+        showError('Trình duyệt không hỗ trợ phát âm');
+        return;
+      }
+      
+      // Cancel any ongoing speech
+      speechSynthesis.cancel();
+      
+      // Create utterance
+      const utterance = new SpeechSynthesisUtterance(word);
+      
+      // Configure speech settings
+      utterance.lang = 'en-US'; // English pronunciation
+      utterance.rate = 0.8; // Slightly slower for learning
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      
+      // Visual feedback
+      const speakerBtn = speakerId ? document.getElementById(speakerId) : null;
+      
+      // Add speaking animation
+      if (speakerBtn) {
+        speakerBtn.classList.add('speaking');
+      }
+      
+      // Handle speech events
+      utterance.onend = function() {
+        if (speakerBtn) {
+          speakerBtn.classList.remove('speaking');
+        }
+      };
+      
+      utterance.onerror = function(event) {
+        console.error('Speech synthesis error:', event);
+        if (speakerBtn) {
+          speakerBtn.classList.remove('speaking');
+        }
+        showError('Lỗi phát âm. Vui lòng thử lại.');
+      };
+      
+      // Speak the word
+      speechSynthesis.speak(utterance);
+      
+      // Log for debugging
+      console.log(`Pronouncing word: "${word}"`);
+    }
+    
+    // Initialize Speech Synthesis on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Preload voices to avoid first-time delays
+      if ('speechSynthesis' in window) {
+        speechSynthesis.onvoiceschanged = function() {
+          const voices = speechSynthesis.getVoices();
+          console.log(`Available voices: ${voices.length}`);
+        };
+      }
+    });
+  </script>
+
+  <style>
+    @keyframes slideOut {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateX(100px);
+      }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</body>
+</html>
