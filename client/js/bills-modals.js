@@ -241,6 +241,7 @@ function renderBillDetailsContent() {
               <button class="btn btn-small" onclick="openAddDailyDetailModal()">+ Add Daily Detail</button>
               <button class="btn btn-small" onclick="triggerBillQRUpload()">Update QR Image</button>
               <button class="btn btn-small" onclick="openSummaryModal('${bill._id}')" style="background: linear-gradient(135deg, #28a745, #20c997);">Summary & Download PDF</button>
+              <button class="btn btn-small btn-secondary" onclick="exportBillOnline('${bill._id}')">Export Online</button>
               <input id="bill-qr-input" type="file" accept="image/*" style="display:none" onchange="attachBillQRImage(this)">
             </div>
           </div>
@@ -568,5 +569,28 @@ async function attachBillQRImage(inputEl) {
   } catch (err) {
     console.error('attachBillQRImage error', err);
     showError('Failed to attach QR image');
+  }
+}
+
+async function exportBillOnline(billId) {
+  try {
+    if (!billId) return;
+    const resp = await fetch(`${API_BASE}/api/bills/${billId}/share`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    if (!resp.ok) {
+      const txt = await resp.text();
+      throw new Error(txt || 'Failed to create share link');
+    }
+    const data = await resp.json();
+    const url = data.shareUrl || (API_BASE + '/share/' + (data.key || ''));
+    showSuccess('Public link created!');
+    window.open(url, '_blank');
+  } catch (err) {
+    console.error('exportBillOnline error', err);
+    showError(err.message || 'Failed to export online');
   }
 }

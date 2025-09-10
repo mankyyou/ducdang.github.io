@@ -573,5 +573,13 @@
   <script src="js/bills.js"></script>
   <script src="js/bills-modals.js"></script>
   <script src="js/bills-participants.js"></script>
+  <script>
+    // Simple router for local static hosting: if path starts with /share/, load share.html
+    (function() {
+      if (location.pathname.startsWith('/share/')) {
+        location.href = 'share.html' + '?k=' + location.pathname.split('/').pop();
+      }
+    })();
+  </script>
 </body>
 </html>

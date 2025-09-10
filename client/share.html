@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shared Bill</title>
+  <link rel="stylesheet" href="components/shared.css">
+  <style>
+    .share-container { max-width: 980px; margin: 22px auto; padding: 0 22px; }
+    .share-header { text-align: center; margin: 16px 0 22px; }
+    .qr-box { text-align: center; margin: 12px 0; }
+    .qr-box img { max-width: 240px; max-height: 240px; border:1px solid #e9ecef; border-radius: 8px; }
+    .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 16px 0; }
+    .stat-card { background:#fff; border: 1px solid #e9ecef; border-radius: 12px; padding: 14px; text-align:center; }
+    .stat-number { font-size: 22px; font-weight: 600; color:#0071e3; }
+    .section-title { font-size: 18px; font-weight: 600; margin: 12px 0; border-bottom: 2px solid rgba(102,126,234,.2); padding-bottom: 6px; }
+    .user-card { background:#fff; border: 1px solid #e9ecef; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+    .user-header { display:flex; justify-content: space-between; align-items:center; }
+    .pill { background:#28a745; color:#fff; padding: 4px 10px; border-radius: 12px; font-size: 12px; }
+    .date-row { display:flex; justify-content: space-between; align-items:center; padding: 6px 8px; background:#f0f2f4; border-radius:6px; margin-top: 6px; }
+    .entry-row { display:flex; justify-content: space-between; align-items:center; padding: 4px 10px; margin-top: 4px; border-left:3px solid #e9ecef; color:#555; }
+  </style>
+</head>
+<body>
+  <div class="share-container">
+    <div class="share-header">
+      <h2 id="bill-title">Shared Bill</h2>
+      <div id="bill-period" style="color:#666"></div>
+    </div>
+
+    <div class="qr-box" id="qr-box" style="display:none"></div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-number" id="stat-total">0</div><div>Tổng chi</div></div>
+      <div class="stat-card"><div class="stat-number" id="stat-days">0</div><div>Số ngày</div></div>
+      <div class="stat-card"><div class="stat-number" id="stat-avg">0</div><div>Trung bình/ngày</div></div>
+      <div class="stat-card"><div class="stat-number" id="stat-participants">0</div><div>Số người</div></div>
+    </div>
+
+    <div id="totals-section">
+      <div class="section-title">👥 Tổng mỗi người phải trả</div>
+      <div id="totals-list"></div>
+    </div>
+
+    <div id="users-section">
+      <div class="section-title">Chi tiết theo từng người</div>
+      <div id="users-list"></div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="js/share.js"></script>
+</body>
+</html>
+
+

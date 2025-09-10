@@ -1263,6 +1263,37 @@ app.delete('/api/bills/:id', auth, async (req, res) => {
   }
 });
 
+// Create or rotate public share link for a bill
+app.post('/api/bills/:id/share', auth, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid bill ID' });
+    }
+    const bill = await Bill.findOne({ _id: req.params.id, user: req.user.id });
+    if (!bill) return res.status(404).json({ message: 'Bill not found' });
+    // Generate random share key
+    const key = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+    bill.shareKey = key;
+    await bill.save();
+    return res.json({ shareUrl: `${process.env.PUBLIC_BASE_URL || 'http://127.0.0.1:5501'}/share/${key}` });
+  } catch (error) {
+    console.error('Error creating share link:', error);
+    return res.status(500).json({ message: 'Error creating share link' });
+  }
+});
+
+// Public endpoint to view single bill (no auth)
+app.get('/api/public/bills/:shareKey', async (req, res) => {
+  try {
+    const bill = await Bill.findOne({ shareKey: req.params.shareKey });
+    if (!bill) return res.status(404).json({ message: 'Not found' });
+    return res.json(bill);
+  } catch (error) {
+    console.error('Error fetching shared bill:', error);
+    return res.status(500).json({ message: 'Error fetching shared bill' });
+  }
+});
+
 // Participant management
 app.post('/api/bills/:id/participants', auth, async (req, res) => {
   try {

@@ -102,6 +102,13 @@ const billSchema = new mongoose.Schema({
     enum: ['draft', 'active', 'completed', 'cancelled'],
     default: 'draft'
   }
+  ,
+  // Public sharing
+  shareKey: {
+    type: String,
+    index: true,
+    sparse: true
+  }
   
 }, {
   timestamps: true,
