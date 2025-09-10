@@ -324,7 +324,7 @@ function generateSingleBillPDFHTML(summary, bill) {
   let totalsSummaryHTML = '';
   let participantsNames = [];
   if (bill.dailyDetails && bill.dailyDetails.length > 0) {
-    // Aggregate per participant per date
+    // Aggregate per participant per date, preserving descriptions per Daily Detail
     const participantDetails = {};
     bill.dailyDetails.forEach(detail => {
       // Determine participants to charge for this detail
@@ -346,9 +346,12 @@ function generateSingleBillPDFHTML(summary, bill) {
           }
           const dateKey = new Date(detail.date).toISOString().split('T')[0];
           if (!participantDetails[userName].perDate[dateKey]) {
-            participantDetails[userName].perDate[dateKey] = 0;
+            participantDetails[userName].perDate[dateKey] = [];
           }
-          participantDetails[userName].perDate[dateKey] += amountPerPerson;
+          participantDetails[userName].perDate[dateKey].push({
+            amount: amountPerPerson,
+            description: (detail.description || '').trim()
+          });
           participantDetails[userName].totalAmount += amountPerPerson;
         });
       }
@@ -387,11 +390,21 @@ function generateSingleBillPDFHTML(summary, bill) {
       userDetailsHTML += '<div class="daily-breakdown">';
       userDetailsHTML += '<h5 style="margin: 0.5rem 0; color: #666;">Chi tiết theo ngày:</h5>';
       dates.forEach(dateKey => {
-        const amount = details.perDate[dateKey];
-        userDetailsHTML += '<div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: #f8f9fa; margin-bottom: 0.25rem; border-radius: 4px;">';
+        const entries = details.perDate[dateKey];
+        const dayTotal = entries.reduce((sum, e) => sum + (e.amount || 0), 0);
+        // Header row for the date with day total
+        userDetailsHTML += '<div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: #f0f2f4; margin-top: 0.25rem; border-radius: 4px;">';
         userDetailsHTML += '<div><strong>' + formatDate(dateKey) + '</strong></div>';
-        userDetailsHTML += '<div style="font-weight: 600; color: #28a745;">' + formatVND(amount) + '</div>';
+        userDetailsHTML += '<div style="font-weight: 600; color: #28a745;">' + formatVND(dayTotal) + '</div>';
         userDetailsHTML += '</div>';
+        // List each entry description (if any)
+        entries.forEach((e) => {
+          if ((e.description || '').length === 0) return;
+          userDetailsHTML += '<div style="display:flex; justify-content: space-between; align-items:center; padding: 0.35rem 0.5rem 0.35rem 0.75rem; margin: 0.15rem 0 0.25rem; border-left: 3px solid #e9ecef; color:#555;">';
+          userDetailsHTML += '<div style="font-size: 0.9rem;">' + escapeHtml(e.description) + '</div>';
+          userDetailsHTML += '<div style="font-size: 0.9rem; font-weight:600; color:#198754;">' + formatVND(e.amount) + '</div>';
+          userDetailsHTML += '</div>';
+        });
       });
       userDetailsHTML += '</div>';
       userDetailsHTML += '</div>';
