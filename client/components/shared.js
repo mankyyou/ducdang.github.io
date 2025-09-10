@@ -110,6 +110,19 @@ function goToLearnEnglish() {
   window.location.href = 'learn-english.html';
 }
 
+function goToBills() {
+  // Smooth transition without jerky animation
+  const billsTab = document.getElementById('bills-tab');
+  if (billsTab) {
+    // Simple active state change
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    billsTab.classList.add('active');
+  }
+  
+  // Immediate redirect without delay
+  window.location.href = 'bills.html';
+}
+
 // Tab animation function (simplified for smooth transitions)
 function animateTabSwitch(targetTab) {
   if (!targetTab) return;
@@ -152,8 +165,11 @@ function showNotification(message, type = 'info') {
     color: white;
     padding: 1rem 1.5rem;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 1000;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+    max-width: 300px;
+    word-wrap: break-word;
+    z-index: 99999;
     animation: slideIn 0.3s ease;
   `;
   notification.textContent = message;

@@ -6,99 +6,116 @@
   <link rel="stylesheet" href="components/shared.css">
   <style>
     .dashboard-container {
-      width: 90%;
-      max-width: 1000px;
-      margin: 2rem auto;
-      padding: 2rem;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-      animation: slideUp 0.3s ease-out;
+      max-width: 980px;
+      margin: 22px auto;
+      padding: 0 22px;
       box-sizing: border-box;
-      overflow: hidden;
     }
     
     .welcome-section {
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 4px 16px 0 rgba(0,0,0,0.12);
+      padding: 22px;
+      margin-bottom: 22px;
+      border: 0.5px solid rgba(0,0,0,0.04);
       text-align: center;
-      padding: 2rem 0;
     }
     
-                   .welcome-section h2 {
-        color: #333;
-        margin-bottom: 1rem;
-        font-size: 2rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
+    .welcome-section h2 {
+      color: #1d1d1f;
+      margin-bottom: 16px;
+      font-size: 28px;
+      line-height: 1.14286;
+      font-weight: 600;
+      letter-spacing: .007em;
+    }
     
     .welcome-section p {
-      color: #666;
-      font-size: 1.1rem;
-      line-height: 1.6;
-      margin-bottom: 1rem;
+      color: #86868b;
+      font-size: 17px;
+      line-height: 1.47059;
+      letter-spacing: -0.022em;
+      margin-bottom: 16px;
     }
     
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-top: 2rem;
+      gap: 22px;
+      margin-top: 22px;
     }
     
-                   .stat-card {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-        padding: 1.5rem;
-        border-radius: 15px;
-        border: 1px solid rgba(102, 126, 234, 0.2);
-        text-align: center;
-        transition: all 0.3s ease;
-      }
+    .stat-card {
+      background: #ffffff;
+      padding: 22px;
+      border-radius: 18px;
+      border: 0.5px solid rgba(0,0,0,0.04);
+      box-shadow: 0 4px 16px 0 rgba(0,0,0,0.12);
+      text-align: center;
+      transition: all 0.15s ease;
+    }
     
-                   .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
-      }
+    .stat-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 24px 0 rgba(0,0,0,0.16);
+    }
     
-                   .stat-number {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #667eea;
-        margin-bottom: 0.5rem;
-      }
+    .stat-number {
+      font-size: 36px;
+      line-height: 1.05556;
+      font-weight: 600;
+      letter-spacing: -.005em;
+      color: #007aff;
+      margin-bottom: 8px;
+    }
     
     .stat-label {
-      color: #666;
-      font-size: 0.9rem;
-      font-weight: 500;
+      color: #86868b;
+      font-size: 14px;
+      line-height: 1.28571;
+      font-weight: 400;
     }
     
     .quick-actions {
-      margin-top: 2rem;
+      margin-top: 22px;
       display: flex;
       justify-content: center;
-      gap: 1rem;
+      gap: 16px;
     }
     
-                   .action-btn {
-        padding: 0.75rem 1.5rem;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        border: none;
-        border-radius: 25px;
-        cursor: pointer;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-      }
-    
-                   .action-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-      }
+    .action-btn {
+      padding: 11px 22px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 17px;
+      line-height: 1.23536;
+      font-weight: 400;
+      letter-spacing: -0.022em;
+      transition: all 0.15s ease-in-out;
+      font-family: inherit;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      text-decoration: none;
+      white-space: nowrap;
+      background: #0071e3;
+      color: #fff;
+      border-color: #0071e3;
+    }
+
+    .action-btn:hover {
+      background: #0077ed;
+      border-color: #0077ed;
+      transform: scale(1.004);
+    }
+
+    .action-btn:active {
+      transform: scale(0.996);
+    }
     
     .loading {
       display: none;

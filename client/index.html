@@ -11,21 +11,7 @@
       box-sizing: border-box;
     }
 
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; 
-      background: linear-gradient(135deg, #ffffff 0%, #000000 100%);
-      background-size: 400% 400%;
-      animation: gradientShift 8s ease infinite;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      color: #1d1d1f;
-      line-height: 1.5;
-      position: relative;
-    }
-
+    /* Animated Gradient Background - Very Slow */
     @keyframes gradientShift {
       0% {
         background-position: 0% 50%;
@@ -38,82 +24,97 @@
       }
     }
 
-    /* Subtle overlay for better readability */
-    body::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255, 255, 255, 0.1);
-      pointer-events: none;
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, sans-serif; 
+      background: linear-gradient(-45deg, #5c258d, #4389a2, #5c258d, #4389a2, #5c258d);
+      background-size: 400% 400%;
+      animation: gradientShift 80s ease infinite;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+      color: #ffffff;
+      line-height: 1.47059;
+      font-weight: 400;
+      letter-spacing: -0.022em;
+      text-shadow: none;
+      transition: all 0.8s ease;
     }
+
 
     .container {
       width: 100%;
       max-width: 400px;
-      position: relative;
-      z-index: 10;
     }
 
     .login-card {
-      background: #ffffff;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
       border-radius: 18px;
-      padding: 3rem 2rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-      border: 1px solid #e5e5e7;
+      padding: 48px 32px;
+      box-shadow: 0 8px 32px 0 rgba(0,0,0,0.2);
+      border: 0.5px solid rgba(255,255,255,0.2);
     }
 
     .logo {
       text-align: center;
-      margin-bottom: 2.5rem;
+      margin-bottom: 40px;
     }
 
     .title {
-      font-size: 28px;
+      font-size: 32px;
+      line-height: 1.125;
       font-weight: 600;
+      letter-spacing: .004em;
       color: #1d1d1f;
       text-align: center;
-      margin-bottom: 0.5rem;
-      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      text-shadow: none;
     }
 
     .subtitle {
       color: #86868b;
       text-align: center;
-      font-size: 17px;
+      font-size: 19px;
+      line-height: 1.21053;
       font-weight: 400;
+      letter-spacing: .012em;
     }
 
     .form-group {
-      margin-bottom: 1.5rem;
+      margin-bottom: 24px;
     }
 
     .form-group label {
       display: block;
-      margin-bottom: 0.5rem;
+      margin-bottom: 8px;
       color: #1d1d1f;
       font-weight: 500;
-      font-size: 15px;
+      font-size: 17px;
+      line-height: 1.23536;
+      letter-spacing: -0.022em;
     }
 
     .form-input {
       width: 100%;
-      padding: 0.875rem 1rem;
+      padding: 12px 16px;
       border: 1px solid #d2d2d7;
       border-radius: 12px;
       font-size: 17px;
+      line-height: 1.23536;
+      letter-spacing: -0.022em;
       background: #ffffff;
       color: #1d1d1f;
-      transition: border-color 0.2s ease;
+      transition: all 0.15s ease;
       font-family: inherit;
+      box-sizing: border-box;
     }
 
     .form-input:focus {
       outline: none;
-      border-color: #007aff;
-      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+      border-color: #0071e3;
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.16);
     }
 
     .form-input::placeholder {
@@ -122,21 +123,28 @@
 
     .button-group {
       display: flex;
-      gap: 0.75rem;
-      margin-top: 2rem;
+      gap: 16px;
+      margin-top: 32px;
     }
 
     .btn {
       flex: 1;
-      padding: 0.875rem 1rem;
-      border: none;
+      padding: 11px 22px;
+      border: 1px solid transparent;
       border-radius: 12px;
       font-size: 17px;
-      font-weight: 500;
+      line-height: 1.23536;
+      font-weight: 400;
+      letter-spacing: -0.022em;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease-in-out;
       font-family: inherit;
-      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      text-decoration: none;
+      white-space: nowrap;
     }
 
     .btn:disabled {
@@ -144,31 +152,36 @@
       cursor: not-allowed;
     }
 
+    .btn:hover {
+      transform: scale(1.004);
+    }
+
+    .btn:active {
+      transform: scale(0.996);
+      transition: transform 0.05s ease;
+    }
+
     .btn-primary {
-      background: #007aff;
-      color: white;
+      background: #0071e3;
+      color: #fff;
+      border-color: #0071e3;
     }
 
     .btn-primary:hover:not(:disabled) {
-      background: #0056cc;
-    }
-
-    .btn-primary:active:not(:disabled) {
-      background: #004499;
+      background: #0077ed;
+      border-color: #0077ed;
     }
 
     .btn-secondary {
-      background: #f5f5f7;
-      color: #007aff;
-      border: 1px solid #d2d2d7;
+      background: transparent;
+      color: #0071e3;
+      border-color: #0071e3;
     }
 
     .btn-secondary:hover:not(:disabled) {
-      background: #e5e5e7;
-    }
-
-    .btn-secondary:active:not(:disabled) {
-      background: #d5d5d7;
+      background: #0071e3;
+      color: #fff;
+      border-color: #0071e3;
     }
 
     .status {

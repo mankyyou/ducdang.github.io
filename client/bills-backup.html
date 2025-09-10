@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bills Management</title>
+  <link rel="stylesheet" href="components/shared.css">
+  <style>
+    .bills-container {
+      max-width: 980px;
+      margin: 22px auto;
+      padding: 0 22px;
+      box-sizing: border-box;
+    }
+
+    .bills-header {
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 4px 16px 0 rgba(0,0,0,0.12);
+      padding: 22px;
+      margin-bottom: 22px;
+      border: 0.5px solid rgba(0,0,0,0.04);
+      text-align: center;
+    }
+
+    .bills-header h2 {
+      color: #1d1d1f;
+      margin-bottom: 16px;
+      font-size: 28px;
+      line-height: 1.14286;
+      font-weight: 600;
+      letter-spacing: .007em;
+    }
+
+    .bills-header p {
+      color: #86868b;
+      font-size: 17px;
+      line-height: 1.47059;
+      letter-spacing: -0.022em;
+      margin-bottom: 16px;
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      text-decoration: none;
+      display: inline-block;
+      font-size: 0.9rem;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #6c757d, #495057);
+      box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .btn-secondary:hover {
+      box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    }
+
+    .btn-danger:hover {
+      box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    .stat-card {
+      background: #ffffff;
+      padding: 22px;
+      border-radius: 18px;
+      border: 0.5px solid rgba(0,0,0,0.04);
+      box-shadow: 0 4px 16px 0 rgba(0,0,0,0.12);
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .stat-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 24px 0 rgba(0,0,0,0.16);
+    }
+
+    .stat-number {
+      font-size: 36px;
+      line-height: 1.05556;
+      font-weight: 600;
+      letter-spacing: -.005em;
+      color: #0071e3;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      color: #86868b;
+      font-size: 14px;
+      line-height: 1.28571;
+      font-weight: 400;
+    }
+
+    .bills-section {
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .bills-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .bill-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .bill-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+
+    .bill-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .bill-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+    }
+
+    .bill-status {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    .status-draft { background: #e9ecef; color: #6c757d; }
+    .status-active { background: #d4edda; color: #155724; }
+    .status-completed { background: #d1ecf1; color: #0c5460; }
+    .status-cancelled { background: #f8d7da; color: #721c24; }
+
+    .bill-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .bill-detail {
+      text-align: center;
+    }
+
+    .bill-detail-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .bill-detail-label {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 0.25rem;
+    }
+
+    .bill-dates {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 1rem;
+    }
+
+    .bill-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-small {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 5% auto;
+      padding: 2rem;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+    }
+
+    .close {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #999;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .close:hover {
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+      color: #666;
+    }
+
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #667eea;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s linear infinite;
+      margin-left: 10px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+
+    .empty-state h3 {
+      margin-bottom: 1rem;
+      color: #333;
+    }
+
+    .empty-state p {
+      margin-bottom: 2rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .bills-container {
+        width: 95%;
+        margin: 1rem auto;
+        padding: 1.5rem;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .bill-card-header {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .bill-details {
+        grid-template-columns: 1fr;
+        text-align: left;
+      }
+
+      .bill-actions {
+        justify-content: center;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-content {
+        margin: 10% auto;
+        width: 95%;
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Include shared header -->
+  <div id="header-container"></div>
+
+  <div class="bills-container" id="bills-content">
+    <div class="loading" id="loading">Loading bills data...</div>
+    
+    <div id="main-content" style="display: none;">
+      <div class="bills-header">
+        <h2>Bills Management</h2>
+        <p>Manage your shared expenses and calculate bills with friends and family</p>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn" onclick="openCreateBillModal()">+ Create New Bill</button>
+        <button class="btn btn-secondary" onclick="openParticipantsModal()">👥 Manage Participants</button>
+        <button class="btn btn-secondary" onclick="refreshBills()">Refresh</button>
+      </div>
+
+      <!-- Statistics Section -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="total-bills">0</div>
+          <div class="stat-label">Total Bills</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="active-bills">0</div>
+          <div class="stat-label">Active Bills</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="completed-bills">0</div>
+          <div class="stat-label">Completed Bills</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="total-amount">0₫</div>
+          <div class="stat-label">Total Amount</div>
+        </div>
+      </div>
+
+      <!-- Bills List Section -->
+      <div class="bills-section">
+        <h3 class="section-title">Your Bills</h3>
+        <div class="bills-list" id="bills-list">
+          <!-- Bills will be loaded here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="empty-state" style="display: none;">
+      <h3>No Bills Yet</h3>
+      <p>Start by creating your first bill to track and split expenses</p>
+      <button class="btn" onclick="openCreateBillModal()">Create Your First Bill</button>
+    </div>
+  </div>
+
+  <!-- Create/Edit Bill Modal -->
+  <div id="bill-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Create New Bill</h3>
+        <span class="close" onclick="closeBillModal()">&times;</span>
+      </div>
+      <form id="bill-form" onsubmit="handleBillSubmit(event)">
+        <div class="form-group">
+          <label class="form-label" for="bill-title">Bill Title *</label>
+          <input type="text" id="bill-title" class="form-input" required maxlength="200" 
+                 placeholder="e.g. Weekend Trip to Da Lat">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="bill-description">Description</label>
+          <textarea id="bill-description" class="form-input form-textarea" 
+                    placeholder="Optional description of this bill..." maxlength="1000"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="bill-start-date">Start Date *</label>
+            <input type="date" id="bill-start-date" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="bill-end-date">End Date *</label>
+            <input type="date" id="bill-end-date" class="form-input" required>
+          </div>
+        </div>
+
+
+        <div class="action-buttons">
+          <button type="submit" class="btn" id="submit-btn">Create Bill</button>
+          <button type="button" class="btn btn-secondary" onclick="closeBillModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bill Details Modal -->
+  <div id="bill-details-modal" class="modal">
+    <div class="modal-content" style="max-width: 900px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="details-modal-title">Bill Details</h3>
+        <span class="close" onclick="closeBillDetailsModal()">&times;</span>
+      </div>
+      
+      <div id="bill-details-content">
+        <!-- Bill details will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Participants Management Modal -->
+  <div id="participants-modal" class="modal">
+    <div class="modal-content" style="max-width: 800px;">
+      <div class="modal-header">
+        <h3 class="modal-title">👥 Manage Participants</h3>
+        <span class="close" onclick="closeParticipantsModal()">&times;</span>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <button class="btn" onclick="openAddParticipantModal()">+ Add New Participant</button>
+      </div>
+      
+      <div id="participants-list" style="max-height: 400px; overflow-y: auto;">
+        <!-- Participants will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Participant Modal -->
+  <div id="participant-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Participant</h3>
+        <span class="close" onclick="closeParticipantModal()">&times;</span>
+      </div>
+      <form id="participant-form" onsubmit="handleParticipantSubmit(event)">
+        <div class="form-group">
+          <label class="form-label" for="participant-name">Name *</label>
+          <input type="text" id="participant-name" class="form-input" required maxlength="100" 
+                 placeholder="Enter participant name">
+        </div>
+        <div class="action-buttons">
+          <button type="submit" class="btn">Add Participant</button>
+          <button type="button" class="btn btn-secondary" onclick="closeParticipantModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Daily Detail Modal -->
+  <div id="daily-detail-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="daily-detail-modal-title">Add Daily Detail</h3>
+        <span class="close" onclick="closeDailyDetailModal()">&times;</span>
+      </div>
+      <form id="daily-detail-form" onsubmit="handleDailyDetailSubmit(event)">
+        <div class="form-group">
+          <label class="form-label" for="detail-date">Date *</label>
+          <input type="date" id="detail-date" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="detail-amount">Amount (VND) *</label>
+          <input type="text" id="detail-amount" class="form-input" required
+                 placeholder="0" oninput="formatVNDAmount(this)" onkeypress="return isNumberKey(event)">
+          <small style="color: #666; font-size: 0.8rem;">Enter amount in Vietnamese Dong</small>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="detail-participants">Split Between Participants *</label>
+          <div id="participants-select" style="border: 1px solid #ddd; border-radius: 8px; padding: 0.75rem; max-height: 150px; overflow-y: auto;">
+            <!-- Participants will be loaded here -->
+          </div>
+          <small style="color: #666; font-size: 0.8rem;">Select participants to split this expense</small>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="detail-description">Description</label>
+          <textarea id="detail-description" class="form-input form-textarea" 
+                    placeholder="Optional description..." maxlength="500"></textarea>
+        </div>
+        <div class="action-buttons">
+          <button type="submit" class="btn" id="daily-detail-submit-btn">Add Daily Detail</button>
+          <button type="button" class="btn btn-secondary" onclick="closeDailyDetailModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Summary Modal -->
+  <div id="summary-modal" class="modal">
+    <div class="modal-content" style="max-width: 800px;">
+      <div class="modal-header">
+        <h3 class="modal-title">📊 Bills Summary & Statistics</h3>
+        <span class="close" onclick="closeSummaryModal()">&times;</span>
+      </div>
+      <div id="summary-content" style="max-height: 60vh; overflow-y: auto;">
+        <!-- Summary content will be loaded here -->
+      </div>
+      <div class="action-buttons" style="margin-top: 1rem; border-top: 1px solid #eee; padding-top: 1rem;">
+        <button class="btn" onclick="downloadSummaryPDF(currentSummaryBillId)" style="background: linear-gradient(135deg, #28a745, #20c997);">
+          Download PDF Report
+        </button>
+        <button class="btn btn-secondary" onclick="closeSummaryModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="components/shared.js"></script>
+  <script src="js/bills.js"></script>
+  <script src="js/bills-modals.js"></script>
+  <script src="js/bills-participants.js"></script>
+  <script>
+    // All JavaScript code has been moved to separate files:
+    // - js/bills.js (main functionality)
+    // - js/bills-modals.js (modal functions)
+    // - js/bills-participants.js (participants and daily details)
+
+    // Load shared header
+    async function loadHeader() {
+      try {
+        const response = await fetch('components/header.html');
+        const headerHtml = await response.text();
+        document.getElementById('header-container').innerHTML = headerHtml;
+        
+        // Initialize shared components with smooth transition
+        initializeSharedComponents('Bills Management', 'bills-tab');
+        
+        // Load bills data
+        await loadBillsData();
+        
+        // Show main content
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        
+      } catch (error) {
+        console.error('Error loading header:', error);
+        // Show main content even if header fails
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+      }
+    }
+
+    // Load bills data
+    async function loadBillsData() {
+      try {
+        // Load bills and stats in parallel
+        const [billsResponse, statsResponse] = await Promise.all([
+          fetch(API_BASE + '/api/bills', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          }),
+          fetch(API_BASE + '/api/bills/stats', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          })
+        ]);
+
+        if (billsResponse.ok) {
+          currentBills = await billsResponse.json();
+          renderBills();
+        } else {
+          throw new Error('Failed to load bills');
+        }
+
+        if (statsResponse.ok) {
+          const stats = await statsResponse.json();
+          updateStats(stats);
+        } else {
+          // Don't fail if stats fail, just set to 0
+          updateStats({ totalBills: 0, activeBills: 0, completedBills: 0, totalAmount: 0 });
+        }
+
+      } catch (error) {
+        console.error('Error loading bills data:', error);
+        showError('Failed to load bills data. Please try again.');
+        currentBills = [];
+        renderBills();
+      }
+    }
+
+    // Update statistics display
+    function updateStats(stats) {
+      document.getElementById('total-bills').textContent = stats.totalBills || 0;
+      document.getElementById('active-bills').textContent = stats.activeBills || 0;
+      document.getElementById('completed-bills').textContent = stats.completedBills || 0;
+      document.getElementById('total-amount').textContent = formatVND(stats.totalAmount || 0);
+    }
+
+    // Render bills list
+    function renderBills() {
+      const billsList = document.getElementById('bills-list');
+      const emptyState = document.getElementById('empty-state');
+      const mainContent = document.getElementById('main-content');
+
+      if (currentBills.length === 0) {
+        mainContent.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      mainContent.style.display = 'block';
+
+      billsList.innerHTML = currentBills.map(bill => `
+        <div class="bill-card" data-bill-id="${bill._id}">
+          <div class="bill-card-header">
+            <h4 class="bill-title">${escapeHtml(bill.title)}</h4>
+            <span class="bill-status status-${bill.status}">${bill.status}</span>
+          </div>
+          
+          ${bill.description ? `<p style="color: #666; margin-bottom: 1rem;">${escapeHtml(bill.description)}</p>` : ''}
+          
+          <div class="bill-dates">
+            ${formatDate(bill.startDate)} → ${formatDate(bill.endDate)}
+          </div>
+          
+          <div class="bill-details">
+            <div class="bill-detail">
+              <div class="bill-detail-value">${formatVND(bill.totalAmount || 0)}</div>
+              <div class="bill-detail-label">Total Amount</div>
+            </div>
+            <div class="bill-detail">
+              <div class="bill-detail-value">${bill.totalDays || 0}</div>
+              <div class="bill-detail-label">Days</div>
+            </div>
+            <div class="bill-detail">
+              <div class="bill-detail-value">${bill.totalParticipants || 0}</div>
+              <div class="bill-detail-label">Participants</div>
+            </div>
+            <div class="bill-detail">
+              <div class="bill-detail-value">${formatVND(bill.averagePerDay || 0)}</div>
+              <div class="bill-detail-label">Avg/Day</div>
+            </div>
+          </div>
+          
+          <div class="bill-actions">
+            <button class="btn btn-small" onclick="viewBillDetails('${bill._id}')">View</button>
+            <button class="btn btn-small btn-secondary" onclick="editBill('${bill._id}')">Edit</button>
+            <button class="btn btn-small btn-danger" onclick="deleteBill('${bill._id}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Open create bill modal
+    function openCreateBillModal() {
+      currentEditingBill = null;
+      document.getElementById('modal-title').textContent = 'Create New Bill';
+      document.getElementById('submit-btn').textContent = 'Create Bill';
+      
+      // Remove status field if it exists (from previous editing)
+      const statusField = document.getElementById('bill-status');
+      if (statusField) {
+        statusField.parentElement.remove();
+      }
+      
+      // Reset form
+      document.getElementById('bill-form').reset();
+      
+      // Set default dates
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('bill-start-date').value = today;
+      document.getElementById('bill-end-date').value = today;
+      
+      document.getElementById('bill-modal').style.display = 'block';
+    }
+
+    // Close bill modal
+    function closeBillModal() {
+      document.getElementById('bill-modal').style.display = 'none';
+      currentEditingBill = null;
+      
+      // Remove status field if it exists (for editing mode)
+      const statusField = document.getElementById('bill-status');
+      if (statusField) {
+        statusField.parentElement.remove();
+      }
+    }
+
+    // Handle bill form submission
+    async function handleBillSubmit(event) {
+      event.preventDefault();
+      
+      const formData = {
+        title: document.getElementById('bill-title').value.trim(),
+        description: document.getElementById('bill-description').value.trim(),
+        startDate: document.getElementById('bill-start-date').value,
+        endDate: document.getElementById('bill-end-date').value
+      };
+
+      // Only include status when editing (not creating)
+      if (currentEditingBill) {
+        formData.status = document.getElementById('bill-status').value || currentEditingBill.status;
+      }
+
+      try {
+        const url = currentEditingBill 
+          ? `${API_BASE}/api/bills/${currentEditingBill._id}`
+          : `${API_BASE}/api/bills`;
+        
+        const method = currentEditingBill ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          const bill = await response.json();
+          showSuccess(currentEditingBill ? 'Bill updated successfully!' : 'Bill created successfully!');
+          closeBillModal();
+          await loadBillsData();
+        } else {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to save bill');
+        }
+      } catch (error) {
+        console.error('Error saving bill:', error);
+        showError(error.message || 'Failed to save bill. Please try again.');
+      }
+    }
+
+    // Edit bill
+    function editBill(billId) {
+      const bill = currentBills.find(b => b._id === billId);
+      if (!bill) return;
+
+      currentEditingBill = bill;
+      document.getElementById('modal-title').textContent = 'Edit Bill';
+      document.getElementById('submit-btn').textContent = 'Update Bill';
+      
+      // Populate form
+      document.getElementById('bill-title').value = bill.title;
+      document.getElementById('bill-description').value = bill.description || '';
+      document.getElementById('bill-start-date').value = bill.startDate.split('T')[0];
+      document.getElementById('bill-end-date').value = bill.endDate.split('T')[0];
+      
+      // Add status field back for editing
+      if (!document.getElementById('bill-status')) {
+        const statusGroup = document.createElement('div');
+        statusGroup.className = 'form-group';
+        statusGroup.innerHTML = `
+          <label class="form-label" for="bill-status">Status</label>
+          <select id="bill-status" class="form-input">
+            <option value="draft">Draft</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        `;
+        
+        // Find the action-buttons div in the bill form
+        const actionButtons = document.querySelector('#bill-form .action-buttons');
+        if (actionButtons) {
+          document.getElementById('bill-form').insertBefore(statusGroup, actionButtons);
+        } else {
+          // Fallback: append to the end of the form
+          document.getElementById('bill-form').appendChild(statusGroup);
+        }
+      }
+      
+      // Set the status value
+      const statusSelect = document.getElementById('bill-status');
+      if (statusSelect) {
+        statusSelect.value = bill.status || 'draft';
+      }
+      
+      document.getElementById('bill-modal').style.display = 'block';
+    }
+
+    // View bill details
+    function viewBillDetails(billId) {
+      const bill = currentBills.find(b => b._id === billId);
+      if (bill) {
+        currentViewingBill = bill;
+        openBillDetailsModal();
+      }
+    }
+
+    // Delete bill
+    async function deleteBill(billId) {
+      const bill = currentBills.find(b => b._id === billId);
+      if (!bill) return;
+
+      if (!confirm(`Are you sure you want to delete "${bill.title}"? This action cannot be undone.`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/api/bills/${billId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (response.ok) {
+          showSuccess('Bill deleted successfully!');
+          await loadBillsData();
+        } else {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to delete bill');
+        }
+      } catch (error) {
+        console.error('Error deleting bill:', error);
+        showError(error.message || 'Failed to delete bill. Please try again.');
+      }
+    }
+
+    // Refresh bills
+    async function refreshBills() {
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('main-content').style.display = 'none';
+      
+      await loadBillsData();
+      
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      
+      showSuccess('Bills refreshed!');
+    }
+
+    // Utility functions
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatDate(dateString) {
+      return new Date(dateString).toLocaleDateString();
+    }
+
+    // Vietnamese Dong formatting function
+    function formatVND(amount) {
+      if (!amount || amount === 0) return '0₫';
+      
+      // Enhanced VND formatting for large amounts
+      if (amount >= 1000000000) {
+        // For amounts >= 1 billion VND
+        return new Intl.NumberFormat('vi-VN', { 
+          style: 'currency', 
+          currency: 'VND',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        }).format(amount).replace('₫', '₫');
+      } else if (amount >= 1000000) {
+        // For amounts >= 1 million VND
+        return new Intl.NumberFormat('vi-VN', { 
+          style: 'currency', 
+          currency: 'VND',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        }).format(amount).replace('₫', '₫');
+      } else {
+        // For smaller amounts
+        return new Intl.NumberFormat('vi-VN', { 
+          style: 'currency', 
+          currency: 'VND',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        }).format(amount).replace('₫', '₫');
+      }
+    }
+
+    // Format VND input while typing
+    function formatVNDAmount(input) {
+      let value = input.value.replace(/\D/g, '');
+      if (value) {
+        // Add thousand separators while typing
+        value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        input.value = value;
+      }
+    }
+
+    // Allow only numbers and backspace
+    function isNumberKey(evt) {
+      const charCode = (evt.which) ? evt.which : evt.keyCode;
+      if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+        return false;
+      }
+      return true;
+    }
+
+    // Bill Details Modal Functions
+    function openBillDetailsModal() {
+      if (!currentViewingBill) return;
+      
+      document.getElementById('details-modal-title').textContent = `${currentViewingBill.title} - Details`;
+      renderBillDetailsContent();
+      document.getElementById('bill-details-modal').style.display = 'block';
+    }
+
+    function closeBillDetailsModal() {
+      document.getElementById('bill-details-modal').style.display = 'none';
+      currentViewingBill = null;
+    }
+
+    function renderBillDetailsContent() {
+      const bill = currentViewingBill;
+      if (!bill) return;
+
+      const detailsContent = document.getElementById('bill-details-content');
+      detailsContent.innerHTML = `
+        <div style="margin-bottom: 2rem;">
+          <div class="bill-details" style="margin-bottom: 1rem;">
+            <div class="bill-detail">
+              <div class="bill-detail-value">${formatVND(bill.totalAmount || 0)}</div>
+              <div class="bill-detail-label">Total Amount</div>
+            </div>
+            <div class="bill-detail">
+              <div class="bill-detail-value">${bill.totalDays || 0}</div>
+              <div class="bill-detail-label">Total Days</div>
+            </div>
+            <div class="bill-detail">
+              <div class="bill-detail-value">${bill.totalParticipants || 0}</div>
+              <div class="bill-detail-label">Participants</div>
+            </div>
+            <div class="bill-detail">
+              <div class="bill-detail-value">${formatVND(bill.averagePerDay || 0)}</div>
+              <div class="bill-detail-label">Average/Day</div>
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 1rem;">
+            <strong>Period:</strong> ${formatDate(bill.startDate)} → ${formatDate(bill.endDate)}
+          </div>
+          
+          ${bill.description ? `<div style="margin-bottom: 1rem;"><strong>Description:</strong> ${escapeHtml(bill.description)}</div>` : ''}
+          
+          <div style="margin-bottom: 1rem;">
+            <strong>Status:</strong> <span class="bill-status status-${bill.status}">${bill.status}</span>
+          </div>
+        </div>
+
+
+        <!-- Daily Details Section -->
+        <div class="bills-section">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4 class="section-title" style="margin-bottom: 0;">Daily Details (${bill.dailyDetails?.length || 0})</h4>
+            <button class="btn btn-small" onclick="openAddDailyDetailModal()">+ Add Daily Detail</button>
+          </div>
+          <div id="daily-details-list">
+            ${renderDailyDetailsList(bill.dailyDetails || [])}
+          </div>
+        </div>
+      `;
+    }
+
+
+    function renderDailyDetailsList(dailyDetails) {
+      if (dailyDetails.length === 0) {
+        return '<p style="color: #666; text-align: center; padding: 1rem;">No daily details added yet</p>';
+      }
+
+      // Sort by date
+      const sortedDetails = [...dailyDetails].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      return sortedDetails.map(detail => `
+        <div class="bill-card" style="padding: 1rem; margin-bottom: 0.5rem;">
+          <div style="display: flex; justify-content: between; align-items: flex-start; gap: 1rem;">
+            <div style="flex: 1;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 0.5rem;">
+                <div>
+                  <strong>Date: ${formatDate(detail.date)}</strong>
+                </div>
+                <div>
+                  <strong>Amount: ${formatVND(detail.amount || 0)}</strong>
+                </div>
+                <div>
+                  <strong>People: ${detail.splitCount || 0}</strong>
+                </div>
+                <div>
+                  <strong>Per Person: ${formatVND(detail.amountPerPerson || 0)}</strong>
+                </div>
+              </div>
+              ${detail.description ? `<div style="color: #666; font-size: 0.9rem;">${escapeHtml(detail.description)}</div>` : ''}
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-small btn-secondary" onclick="editDailyDetail('${detail._id}')">Edit</button>
+              <button class="btn btn-small btn-danger" onclick="removeDailyDetail('${detail._id}')">Delete</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Global Participants Management
+    let globalParticipants = [];
+
+    function openParticipantsModal() {
+      loadGlobalParticipants();
+      document.getElementById('participants-modal').style.display = 'block';
+    }
+
+    function closeParticipantsModal() {
+      document.getElementById('participants-modal').style.display = 'none';
+    }
+
+    async function loadGlobalParticipants() {
+      try {
+        console.log('Loading global participants...');
+        console.log('API_BASE:', API_BASE);
+        console.log('Token:', localStorage.getItem('token') ? 'Present' : 'Missing');
+        
+        const response = await fetch(`${API_BASE}/api/participants`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+
+        if (response.ok) {
+          globalParticipants = await response.json();
+          console.log('Loaded participants:', globalParticipants);
+          renderGlobalParticipants();
+        } else {
+          const errorText = await response.text();
+          console.error('Error response:', errorText);
+          console.log('Falling back to extract participants from bills...');
+          loadParticipantsFromBills();
+        }
+      } catch (error) {
+        console.error('Error loading participants:', error);
+        console.log('Falling back to extract participants from bills...');
+        loadParticipantsFromBills();
+      }
+    }
+
+    function loadParticipantsFromBills() {
+      console.log('Extracting participants from existing bills...');
+      const allParticipants = new Map();
+      
+      currentBills.forEach(bill => {
+        if (bill.participants) {
+          bill.participants.forEach(participant => {
+            const key = participant.name;
+            if (!allParticipants.has(key)) {
+              allParticipants.set(key, {
+                _id: participant._id,
+                name: participant.name,
+                createdAt: participant.joinedAt || new Date(),
+                fromBills: true
+              });
+            }
+          });
+        }
+      });
+      
+      globalParticipants = Array.from(allParticipants.values());
+      console.log('Extracted participants:', globalParticipants);
+      renderGlobalParticipants();
+      
+      if (globalParticipants.length === 0) {
+        showError('No participants found. Please add participants to your bills first, or check if the server is running.');
+      } else {
+        showInfo(`Loaded ${globalParticipants.length} participants from existing bills.`);
+      }
+    }
+
+    function renderGlobalParticipants() {
+      const participantsList = document.getElementById('participants-list');
+      
+      if (!globalParticipants || globalParticipants.length === 0) {
+        participantsList.innerHTML = `
+          <div style="text-align: center; color: #666; padding: 2rem;">
+            <p>No participants added yet.</p>
+            <p>Click "Add New Participant" to get started.</p>
+            <p style="font-size: 0.9rem; color: #999; margin-top: 1rem;">
+              Note: Participants are shared across all your bills for easy reuse.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      participantsList.innerHTML = globalParticipants.map(participant => `
+        <div class="bill-card" style="padding: 1rem; margin-bottom: 0.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong>${escapeHtml(participant.name)}</strong>
+              <br><small style="color: #999;">Created: ${formatDate(participant.createdAt || participant.joinedAt || new Date())}</small>
+            </div>
+            <button class="btn btn-small btn-danger" onclick="removeGlobalParticipant('${participant._id}')">Remove</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function removeGlobalParticipant(participantId) {
+      if (!confirm('Are you sure you want to remove this participant? This will remove them from all bills.')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/api/participants/${participantId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (response.ok) {
+          showSuccess('Participant removed successfully!');
+          await loadGlobalParticipants();
+          // Refresh bills to update participant lists
+          await loadBillsData();
+        } else {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to remove participant');
+        }
+      } catch (error) {
+        console.error('Error removing participant:', error);
+        showError(error.message || 'Failed to remove participant. Please try again.');
+      }
+    }
+
+    // Participant Modal Functions
+    function openAddParticipantModal() {
+      document.getElementById('participant-form').reset();
+      document.getElementById('participant-modal').style.display = 'block';
+    }
+
+    function closeParticipantModal() {
+      document.getElementById('participant-modal').style.display = 'none';
+    }
+
+    async function handleParticipantSubmit(event) {
+      event.preventDefault();
+      
+      const formData = {
+        name: document.getElementById('participant-name').value.trim()
+      };
+
+      console.log('Submitting participant:', formData);
+      console.log('API_BASE:', API_BASE);
+
+      try {
+        const response = await fetch(`${API_BASE}/api/participants`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(formData)
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+
+        if (response.ok) {
+          showSuccess('Participant added successfully!');
+          closeParticipantModal();
+          
+          // Refresh global participants list if modal is open
+          if (document.getElementById('participants-modal').style.display === 'block') {
+            await loadGlobalParticipants();
+          }
+        } else {
+          const errorText = await response.text();
+          console.error('Error response:', errorText);
+          let errorMessage = 'Failed to add participant';
+          try {
+            const errorJson = JSON.parse(errorText);
+            errorMessage = errorJson.message || errorMessage;
+          } catch (e) {
+            console.error('Could not parse error response:', e);
+          }
+          throw new Error(errorMessage);
+        }
+      } catch (error) {
+        console.error('Error adding participant:', error);
+        showError(error.message || 'Failed to add participant. Please try again.');
+      }
+    }
+
+
+    // Daily Detail Modal Functions
+    let currentEditingDetail = null;
+
+    function openAddDailyDetailModal() {
+      currentEditingDetail = null;
+      document.getElementById('daily-detail-modal-title').textContent = 'Add Daily Detail';
+      document.getElementById('daily-detail-submit-btn').textContent = 'Add Daily Detail';
+      document.getElementById('daily-detail-form').reset();
+      
+      // Set default date to today if within bill period
+      const today = new Date().toISOString().split('T')[0];
+      const billStart = new Date(currentViewingBill.startDate).toISOString().split('T')[0];
+      const billEnd = new Date(currentViewingBill.endDate).toISOString().split('T')[0];
+      
+      if (today >= billStart && today <= billEnd) {
+        document.getElementById('detail-date').value = today;
+      } else {
+        document.getElementById('detail-date').value = billStart;
+      }
+      
+      // Load participants for selection
+      loadParticipantsSelect();
+      
+      document.getElementById('daily-detail-modal').style.display = 'block';
+    }
+
+    function loadParticipantsSelect() {
+      const participantsSelect = document.getElementById('participants-select');
+      
+      // Use global participants if available, otherwise fallback to bill participants
+      let participants = globalParticipants && globalParticipants.length > 0 
+        ? globalParticipants 
+        : (currentViewingBill?.participants || []);
+      
+      if (participants.length === 0) {
+        participantsSelect.innerHTML = `
+          <div style="text-align: center; color: #999; padding: 1rem;">
+            <p>No participants available.</p>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+              <a href="#" onclick="openParticipantsModal(); closeDailyDetailModal();" style="color: #007aff; text-decoration: none;">
+                👥 Manage Participants
+              </a> to add participants first.
+            </p>
+          </div>
+        `;
+        return;
+      }
+      
+      participantsSelect.innerHTML = `
+        <div style="margin-bottom: 0.75rem; padding: 0.5rem; background: #f8f9fa; border-radius: 6px; border-bottom: 1px solid #dee2e6;">
+          <label style="display: flex; align-items: center; cursor: pointer; font-weight: 600; color: #495057;">
+            <input type="checkbox" id="select-all-participants" style="margin-right: 0.5rem;" onchange="toggleSelectAllParticipants()">
+            <span>Select All (${participants.length} participants)</span>
+          </label>
+        </div>
+        ${participants.map(participant => `
+          <div style="margin-bottom: 0.5rem;">
+            <label style="display: flex; align-items: center; cursor: pointer; padding: 0.25rem;">
+              <input type="checkbox" value="${participant._id}" style="margin-right: 0.5rem;" onchange="updateSelectedParticipants()">
+              <span>${escapeHtml(participant.name)}</span>
+            </label>
+          </div>
+        `).join('')}
+      `;
+    }
+
+    function updateSelectedParticipants() {
+      const checkboxes = document.querySelectorAll('#participants-select input[type="checkbox"]:not(#select-all-participants)');
+      const selectedCheckboxes = document.querySelectorAll('#participants-select input[type="checkbox"]:not(#select-all-participants):checked');
+      const selectedCount = selectedCheckboxes.length;
+      const totalCount = checkboxes.length;
+      
+      // Update select all checkbox
+      const selectAllCheckbox = document.getElementById('select-all-participants');
+      if (selectAllCheckbox) {
+        selectAllCheckbox.checked = selectedCount === totalCount;
+        selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < totalCount;
+      }
+      
+      // Update visual feedback
+      const participantsSelect = document.getElementById('participants-select');
+      const existingFeedback = participantsSelect.querySelector('.selection-feedback');
+      
+      if (existingFeedback) {
+        existingFeedback.remove();
+      }
+      
+      if (selectedCount > 0) {
+        const feedback = document.createElement('div');
+        feedback.className = 'selection-feedback';
+        feedback.style.cssText = 'margin-top: 0.5rem; padding: 0.5rem; background: #e8f4f8; border-radius: 4px; font-size: 0.9rem; color: #0c5460;';
+        feedback.textContent = `${selectedCount} participant(s) selected`;
+        participantsSelect.appendChild(feedback);
+      }
+    }
+
+    function toggleSelectAllParticipants() {
+      const selectAllCheckbox = document.getElementById('select-all-participants');
+      const checkboxes = document.querySelectorAll('#participants-select input[type="checkbox"]:not(#select-all-participants)');
+      
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+      });
+      
+      updateSelectedParticipants();
+    }
+
+    function editDailyDetail(detailId) {
+      const detail = currentViewingBill.dailyDetails.find(d => d._id === detailId);
+      if (!detail) return;
+
+      currentEditingDetail = detail;
+      document.getElementById('daily-detail-modal-title').textContent = 'Edit Daily Detail';
+      document.getElementById('daily-detail-submit-btn').textContent = 'Update Daily Detail';
+      
+      // Populate form
+      document.getElementById('detail-date').value = detail.date.split('T')[0];
+      // Format amount with commas for display (remove currency symbol for input)
+      const formattedAmount = formatVND(detail.amount).replace(/[₫\s]/g, '');
+      document.getElementById('detail-amount').value = formattedAmount;
+      document.getElementById('detail-description').value = detail.description || '';
+      
+      // Load participants and select the ones from this detail
+      loadParticipantsSelect();
+      
+      // For editing, select the previously selected participants
+      setTimeout(() => {
+        const checkboxes = document.querySelectorAll('#participants-select input[type="checkbox"]');
+        
+        // Clear all selections first
+        checkboxes.forEach(checkbox => checkbox.checked = false);
+        
+        // Select the previously selected participants
+        if (detail.selectedParticipants && detail.selectedParticipants.length > 0) {
+          detail.selectedParticipants.forEach(participantId => {
+            const checkbox = document.querySelector(`#participants-select input[value="${participantId}"]`);
+            if (checkbox) {
+              checkbox.checked = true;
+            }
+          });
+        } else {
+          // Fallback: select first N participants based on splitCount (for backward compatibility)
+          const splitCount = detail.splitCount || 0;
+          for (let i = 0; i < Math.min(splitCount, checkboxes.length); i++) {
+            checkboxes[i].checked = true;
+          }
+        }
+        
+        updateSelectedParticipants();
+      }, 100);
+      
+      document.getElementById('daily-detail-modal').style.display = 'block';
+    }
+
+    function closeDailyDetailModal() {
+      document.getElementById('daily-detail-modal').style.display = 'none';
+      currentEditingDetail = null;
+    }
+
+    async function handleDailyDetailSubmit(event) {
+      event.preventDefault();
+      
+      // Get selected participants
+      const selectedCheckboxes = document.querySelectorAll('#participants-select input[type="checkbox"]:checked');
+      const splitCount = selectedCheckboxes.length;
+      
+      if (splitCount === 0) {
+        showError('Please select at least one participant to split the expense.');
+        return;
+      }
+      
+      // Get selected participant IDs
+      const selectedParticipants = Array.from(selectedCheckboxes).map(checkbox => {
+        return checkbox.value; // This should be the participant ID
+      });
+      
+      // Get raw amount value (remove commas and spaces)
+      const amountValue = document.getElementById('detail-amount').value.replace(/[,\s]/g, '');
+      
+      const formData = {
+        date: document.getElementById('detail-date').value,
+        amount: parseFloat(amountValue),
+        splitCount: splitCount,
+        selectedParticipants: selectedParticipants,
+        description: document.getElementById('detail-description').value.trim() || undefined
+      };
+
+      try {
+        const url = currentEditingDetail 
+          ? `${API_BASE}/api/bills/${currentViewingBill._id}/daily-details/${currentEditingDetail._id}`
+          : `${API_BASE}/api/bills/${currentViewingBill._id}/daily-details`;
+        
+        const method = currentEditingDetail ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          const updatedBill = await response.json();
+          currentViewingBill = updatedBill;
+          const index = currentBills.findIndex(b => b._id === updatedBill._id);
+          if (index !== -1) {
+            currentBills[index] = updatedBill;
+          }
+          
+          showSuccess(currentEditingDetail ? 'Daily detail updated successfully!' : 'Daily detail added successfully!');
+          closeDailyDetailModal();
+          renderBillDetailsContent();
+        } else {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to save daily detail');
+        }
+      } catch (error) {
+        console.error('Error saving daily detail:', error);
+        showError(error.message || 'Failed to save daily detail. Please try again.');
+      }
+    }
+
+    async function removeDailyDetail(detailId) {
+      if (!confirm('Are you sure you want to remove this daily detail?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/api/bills/${currentViewingBill._id}/daily-details/${detailId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (response.ok) {
+          const updatedBill = await response.json();
+          currentViewingBill = updatedBill;
+          const index = currentBills.findIndex(b => b._id === updatedBill._id);
+          if (index !== -1) {
+            currentBills[index] = updatedBill;
+          }
+          
+          showSuccess('Daily detail removed successfully!');
+          renderBillDetailsContent();
+        } else {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to remove daily detail');
+        }
+      } catch (error) {
+        console.error('Error removing daily detail:', error);
+        showError(error.message || 'Failed to remove daily detail. Please try again.');
+      }
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const billModal = document.getElementById('bill-modal');
+      const detailsModal = document.getElementById('bill-details-modal');
+      const participantsModal = document.getElementById('participants-modal');
+      const participantModal = document.getElementById('participant-modal');
+      const dailyDetailModal = document.getElementById('daily-detail-modal');
+      const summaryModal = document.getElementById('summary-modal');
+      
+      if (event.target === billModal) {
+        closeBillModal();
+      } else if (event.target === detailsModal) {
+        closeBillDetailsModal();
+      } else if (event.target === participantsModal) {
+        closeParticipantsModal();
+      } else if (event.target === participantModal) {
+        closeParticipantModal();
+      } else if (event.target === dailyDetailModal) {
+        closeDailyDetailModal();
+      } else if (event.target === summaryModal) {
+        closeSummaryModal();
+      }
+    }
+
+    // Handle ESC key to close modal
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeBillModal();
+        closeBillDetailsModal();
+        closeParticipantsModal();
+        closeParticipantModal();
+        closeDailyDetailModal();
+        closeSummaryModal();
+      }
+    });
+
+    // Summary Modal Functions
+    function openSummaryModal() {
+      generateSummaryContent();
+      document.getElementById('summary-modal').style.display = 'block';
+    }
+
+    function closeSummaryModal() {
+      document.getElementById('summary-modal').style.display = 'none';
+    }
+
+    function generateSummaryContent() {
+      const summaryContent = document.getElementById('summary-content');
+      
+      if (currentBills.length === 0) {
+        summaryContent.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: #666;">
+            <h4>No Bills Found</h4>
+            <p>Create some bills first to see the summary.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Calculate summary statistics
+      const summary = calculateSummaryStatistics();
+      
+      summaryContent.innerHTML = `
+        <div style="margin-bottom: 2rem;">
+          <h4 style="color: #333; margin-bottom: 1rem; border-bottom: 2px solid #667eea; padding-bottom: 0.5rem;">
+            📈 Overall Statistics
+          </h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+              <div style="font-size: 1.5rem; font-weight: 600; color: #667eea;">${summary.totalBills}</div>
+              <div style="color: #666; font-size: 0.9rem;">Total Bills</div>
+            </div>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+              <div style="font-size: 1.5rem; font-weight: 600; color: #28a745;">${formatVND(summary.totalAmount)}</div>
+              <div style="color: #666; font-size: 0.9rem;">Total Amount</div>
+            </div>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+              <div style="font-size: 1.5rem; font-weight: 600; color: #17a2b8;">${summary.totalDays}</div>
+              <div style="color: #666; font-size: 0.9rem;">Total Days</div>
+            </div>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+              <div style="font-size: 1.5rem; font-weight: 600; color: #ffc107;">${formatVND(summary.averagePerDay)}</div>
+              <div style="color: #666; font-size: 0.9rem;">Average/Day</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+          <h4 style="color: #333; margin-bottom: 1rem; border-bottom: 2px solid #667eea; padding-bottom: 0.5rem;">
+            👥 User Statistics
+          </h4>
+          <div style="display: grid; gap: 1rem;">
+            ${Object.entries(summary.userStats).map(([userName, stats]) => `
+              <div style="background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                  <h5 style="margin: 0; color: #333; font-weight: 600;">${escapeHtml(userName)}</h5>
+                  <span style="background: #667eea; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem;">
+                    ${stats.billCount} bills
+                  </span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.9rem;">
+                  <div>
+                    <strong>Total Spent:</strong> ${formatVND(stats.totalSpent)}
+                  </div>
+                  <div>
+                    <strong>Average/Bill:</strong> ${formatVND(stats.averagePerBill)}
+                  </div>
+                  <div>
+                    <strong>Days Involved:</strong> ${stats.totalDays}
+                  </div>
+                  <div>
+                    <strong>Avg/Day:</strong> ${formatVND(stats.averagePerDay)}
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div>
+          <h4 style="color: #333; margin-bottom: 1rem; border-bottom: 2px solid #667eea; padding-bottom: 0.5rem;">
+            📋 Bill Details
+          </h4>
+          <div style="display: grid; gap: 1rem;">
+            ${currentBills.map(bill => `
+              <div style="background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                  <h5 style="margin: 0; color: #333; font-weight: 600;">${escapeHtml(bill.title)}</h5>
+                  <span style="background: ${getStatusColor(bill.status)}; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem; text-transform: uppercase;">
+                    ${bill.status}
+                  </span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.5rem; font-size: 0.9rem; color: #666;">
+                  <div><strong>Amount:</strong> ${formatVND(bill.totalAmount || 0)}</div>
+                  <div><strong>Days:</strong> ${bill.totalDays || 0}</div>
+                  <div><strong>Avg/Day:</strong> ${formatVND(bill.averagePerDay || 0)}</div>
+                  <div><strong>Period:</strong> ${formatDate(bill.startDate)} - ${formatDate(bill.endDate)}</div>
+                </div>
+                ${bill.description ? `<div style="margin-top: 0.5rem; font-size: 0.9rem; color: #666; font-style: italic;">"${escapeHtml(bill.description)}"</div>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function calculateSummaryStatistics() {
+      const summary = {
+        totalBills: currentBills.length,
+        totalAmount: 0,
+        totalDays: 0,
+        averagePerDay: 0,
+        userStats: {}
+      };
+
+      // Calculate overall statistics
+      currentBills.forEach(bill => {
+        summary.totalAmount += bill.totalAmount || 0;
+        summary.totalDays += bill.totalDays || 0;
+        
+        // Calculate user statistics
+        if (bill.participants && bill.participants.length > 0) {
+          bill.participants.forEach(participant => {
+            const userName = participant.name;
+            if (!summary.userStats[userName]) {
+              summary.userStats[userName] = {
+                billCount: 0,
+                totalSpent: 0,
+                totalDays: 0,
+                averagePerBill: 0,
+                averagePerDay: 0
+              };
+            }
+            
+            summary.userStats[userName].billCount++;
+            summary.userStats[userName].totalSpent += (bill.totalAmount || 0) / (bill.participants.length || 1);
+            summary.userStats[userName].totalDays += bill.totalDays || 0;
+          });
+        }
+      });
+
+      // Calculate averages
+      summary.averagePerDay = summary.totalDays > 0 ? summary.totalAmount / summary.totalDays : 0;
+      
+      Object.keys(summary.userStats).forEach(userName => {
+        const userStats = summary.userStats[userName];
+        userStats.averagePerBill = userStats.billCount > 0 ? userStats.totalSpent / userStats.billCount : 0;
+        userStats.averagePerDay = userStats.totalDays > 0 ? userStats.totalSpent / userStats.totalDays : 0;
+      });
+
+      return summary;
+    }
+
+    function getStatusColor(status) {
+      const colors = {
+        'draft': '#6c757d',
+        'active': '#28a745',
+        'completed': '#17a2b8',
+        'cancelled': '#dc3545'
+      };
+      return colors[status] || '#6c757d';
+    }
+
+    function downloadSummaryPDF() {
+      try {
+        // Create a new window for PDF generation
+        const summaryWindow = window.open('', '_blank');
+        const summary = calculateSummaryStatistics();
+        
+        // Generate HTML content step by step
+        let htmlContent = generatePDFHTML(summary);
+        
+        summaryWindow.document.write(htmlContent);
+        summaryWindow.document.close();
+        
+        // Wait for content to load, then print
+        setTimeout(() => {
+          summaryWindow.print();
+        }, 500);
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        showError('Failed to generate PDF. Please try again.');
+      }
+    }
+
+    function generatePDFHTML(summary) {
+      const currentDate = new Date().toLocaleDateString('vi-VN');
+      const currentTime = new Date().toLocaleTimeString('vi-VN');
+      
+      // Generate user statistics HTML
+      let userStatsHTML = '';
+      if (summary.userStats && Object.keys(summary.userStats).length > 0) {
+        Object.entries(summary.userStats).forEach(([userName, stats]) => {
+          userStatsHTML += '<div class="user-card">';
+          userStatsHTML += '<div class="user-header">';
+          userStatsHTML += '<h4 style="margin: 0; color: #333;">' + escapeHtml(userName) + '</h4>';
+          userStatsHTML += '<span class="status-badge" style="background: #667eea;">' + stats.billCount + ' bills</span>';
+          userStatsHTML += '</div>';
+          userStatsHTML += '<div class="user-stats">';
+          userStatsHTML += '<div><strong>Total Spent:</strong> ' + formatVND(stats.totalSpent) + '</div>';
+          userStatsHTML += '<div><strong>Average/Bill:</strong> ' + formatVND(stats.averagePerBill) + '</div>';
+          userStatsHTML += '<div><strong>Days Involved:</strong> ' + stats.totalDays + '</div>';
+          userStatsHTML += '<div><strong>Avg/Day:</strong> ' + formatVND(stats.averagePerDay) + '</div>';
+          userStatsHTML += '</div>';
+          userStatsHTML += '</div>';
+        });
+      }
+
+      // Generate bill details HTML
+      let billDetailsHTML = '';
+      if (currentBills && currentBills.length > 0) {
+        currentBills.forEach(bill => {
+          billDetailsHTML += '<div class="bill-card">';
+          billDetailsHTML += '<div class="bill-header">';
+          billDetailsHTML += '<h4 style="margin: 0; color: #333;">' + escapeHtml(bill.title) + '</h4>';
+          billDetailsHTML += '<span class="status-badge" style="background: ' + getStatusColor(bill.status) + ';">' + bill.status + '</span>';
+          billDetailsHTML += '</div>';
+          billDetailsHTML += '<div class="bill-stats">';
+          billDetailsHTML += '<div><strong>Amount:</strong> ' + formatVND(bill.totalAmount || 0) + '</div>';
+          billDetailsHTML += '<div><strong>Days:</strong> ' + (bill.totalDays || 0) + '</div>';
+          billDetailsHTML += '<div><strong>Avg/Day:</strong> ' + formatVND(bill.averagePerDay || 0) + '</div>';
+          billDetailsHTML += '<div><strong>Period:</strong> ' + formatDate(bill.startDate) + ' - ' + formatDate(bill.endDate) + '</div>';
+          billDetailsHTML += '</div>';
+          if (bill.description) {
+            billDetailsHTML += '<div style="margin-top: 10px; font-size: 0.9rem; color: #666; font-style: italic;">"' + escapeHtml(bill.description) + '"</div>';
+          }
+          billDetailsHTML += '</div>';
+        });
+      }
+
+      // Create final HTML
+      const htmlParts = [
+        '<!DOCTYPE html>',
+        '<html>',
+        '<head>',
+        '<title>Bills Summary Report</title>',
+        '<style>',
+        'body { font-family: Arial, sans-serif; margin: 20px; color: #333; }',
+        '.header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #667eea; padding-bottom: 20px; }',
+        '.section { margin-bottom: 25px; }',
+        '.section h3 { color: #667eea; border-bottom: 1px solid #ddd; padding-bottom: 5px; }',
+        '.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }',
+        '.stat-card { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #e9ecef; }',
+        '.stat-number { font-size: 1.5rem; font-weight: bold; color: #667eea; }',
+        '.stat-label { color: #666; font-size: 0.9rem; margin-top: 5px; }',
+        '.user-card { background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin-bottom: 10px; }',
+        '.bill-card { background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin-bottom: 10px; }',
+        '.user-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }',
+        '.bill-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }',
+        '.user-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; font-size: 0.9rem; }',
+        '.bill-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; font-size: 0.9rem; color: #666; }',
+        '.status-badge { padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; text-transform: uppercase; color: white; }',
+        '.footer { margin-top: 30px; text-align: center; color: #666; font-size: 0.9rem; border-top: 1px solid #ddd; padding-top: 20px; }',
+        '@media print { body { margin: 0; } }',
+        '</style>',
+        '</head>',
+        '<body>',
+        '<div class="header">',
+        '<h1>📊 Bills Summary Report</h1>',
+        '<p>Generated on ' + currentDate + ' at ' + currentTime + '</p>',
+        '</div>',
+        '<div class="section">',
+        '<h3>📈 Overall Statistics</h3>',
+        '<div class="stats-grid">',
+        '<div class="stat-card"><div class="stat-number">' + summary.totalBills + '</div><div class="stat-label">Total Bills</div></div>',
+        '<div class="stat-card"><div class="stat-number">' + formatVND(summary.totalAmount) + '</div><div class="stat-label">Total Amount</div></div>',
+        '<div class="stat-card"><div class="stat-number">' + summary.totalDays + '</div><div class="stat-label">Total Days</div></div>',
+        '<div class="stat-card"><div class="stat-number">' + formatVND(summary.averagePerDay) + '</div><div class="stat-label">Average/Day</div></div>',
+        '</div>',
+        '</div>',
+        '<div class="section">',
+        '<h3>👥 User Statistics</h3>',
+        userStatsHTML,
+        '</div>',
+        '<div class="section">',
+        '<h3>📋 Bill Details</h3>',
+        billDetailsHTML,
+        '</div>',
+        '<div class="footer">',
+        '<p>This report was generated by Bills Management System</p>',
+        '<p>For questions or support, please contact the system administrator</p>',
+        '</div>',
+        '</body>',
+        '</html>'
+      ];
+      
+      return htmlParts.join('');
+    }
+  </script>
+</body>
+</html>

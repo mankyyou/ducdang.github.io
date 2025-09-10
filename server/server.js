@@ -9,6 +9,8 @@ import User from './models/User.js';
 import Note from './models/Note.js';
 import Vocabulary from './models/Vocabulary.js';
 import LearnedWord from './models/LearnedWord.js';
+import Bill from './models/Bill.js';
+import Participant from './models/Participant.js';
 
 dotenv.config();
 
@@ -1134,6 +1136,383 @@ app.post('/api/vocabulary/seed', auth, async (req, res) => {
   } catch (error) {
     console.error('Error seeding vocabulary:', error);
     return res.status(500).json({ message: 'Error seeding vocabulary' });
+  }
+});
+
+// Bill Routes
+app.get('/api/bills', auth, async (req, res) => {
+  try {
+    const bills = await Bill.find({ user: req.user.id }).sort({ updatedAt: -1 });
+    return res.json(bills);
+  } catch (error) {
+    console.error('Error fetching bills:', error);
+    return res.status(500).json({ message: 'Error fetching bills' });
+  }
+});
+
+app.post('/api/bills', auth, async (req, res) => {
+  try {
+    const { title, description, startDate, endDate, participants = [] } = req.body;
+    
+    if (!title || !startDate || !endDate) {
+      return res.status(400).json({ message: 'Title, start date, and end date are required' });
+    }
+    
+    // Validate dates
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    if (start >= end) {
+      return res.status(400).json({ message: 'End date must be after start date' });
+    }
+    
+    const bill = await Bill.create({
+      user: req.user.id,
+      title,
+      description,
+      startDate: start,
+      endDate: end,
+      participants
+    });
+    
+    return res.status(201).json(bill);
+  } catch (error) {
+    console.error('Error creating bill:', error);
+    return res.status(500).json({ message: 'Error creating bill' });
+  }
+});
+
+app.get('/api/bills/:id', auth, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid bill ID' });
+    }
+    
+    const bill = await Bill.findOne({ _id: req.params.id, user: req.user.id });
+    
+    if (!bill) {
+      return res.status(404).json({ message: 'Bill not found' });
+    }
+    
+    return res.json(bill);
+  } catch (error) {
+    console.error('Error fetching bill:', error);
+    return res.status(500).json({ message: 'Error fetching bill' });
+  }
+});
+
+app.put('/api/bills/:id', auth, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid bill ID' });
+    }
+    
+    const { title, description, startDate, endDate, status } = req.body;
+    const updateData = {};
+    
+    if (title) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (status) updateData.status = status;
+    
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      if (start >= end) {
+        return res.status(400).json({ message: 'End date must be after start date' });
+      }
+      
+      updateData.startDate = start;
+      updateData.endDate = end;
+    }
+    
+    const bill = await Bill.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
+      updateData,
+      { new: true, runValidators: true }
+    );
+    
+    if (!bill) {
+      return res.status(404).json({ message: 'Bill not found' });
+    }
+    
+    return res.json(bill);
+  } catch (error) {
+    console.error('Error updating bill:', error);
+    return res.status(500).json({ message: 'Error updating bill' });
+  }
+});
+
+app.delete('/api/bills/:id', auth, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid bill ID' });
+    }
+    
+    const bill = await Bill.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+    
+    if (!bill) {
+      return res.status(404).json({ message: 'Bill not found' });
+    }
+    
+    return res.json({ message: 'Bill deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting bill:', error);
+    return res.status(500).json({ message: 'Error deleting bill' });
+  }
+});
+
+// Participant management
+app.post('/api/bills/:id/participants', auth, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid bill ID' });
+    }
+    
+    const { name } = req.body;
+    
+    if (!name || name.trim().length === 0) {
+      return res.status(400).json({ message: 'Participant name is required' });
+    }
+    
+    const bill = await Bill.findOne({ _id: req.params.id, user: req.user.id });
+    
+    if (!bill) {
+      return res.status(404).json({ message: 'Bill not found' });
+    }
+    
+    try {
+      await bill.addParticipant({ name: name.trim() });
+      return res.status(201).json(bill);
+    } catch (addError) {
+      return res.status(400).json({ message: addError.message });
+    }
+  } catch (error) {
+    console.error('Error adding participant:', error);
+    return res.status(500).json({ message: 'Error adding participant' });
+  }
+});
+
+app.delete('/api/bills/:id/participants/:participantId', auth, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id) || !mongoose.Types.ObjectId.isValid(req.params.participantId)) {
+      return res.status(400).json({ message: 'Invalid bill ID or participant ID' });
+    }
+    
+    const bill = await Bill.findOne({ _id: req.params.id, user: req.user.id });
+    
+    if (!bill) {
+      return res.status(404).json({ message: 'Bill not found' });
+    }
+    
+    try {
+      await bill.removeParticipant(req.params.participantId);
+      return res.json(bill);
+    } catch (removeError) {
+      return res.status(400).json({ message: removeError.message });
+    }
+  } catch (error) {
+    console.error('Error removing participant:', error);
+    return res.status(500).json({ message: 'Error removing participant' });
+  }
+});
+
+// Global Participants management
+app.get('/api/participants', auth, async (req, res) => {
+  try {
+    const participants = await Participant.findByUser(req.user.id);
+    return res.json(participants);
+  } catch (error) {
+    console.error('Error fetching participants:', error);
+    return res.status(500).json({ message: 'Error fetching participants' });
+  }
+});
+
+app.post('/api/participants', auth, async (req, res) => {
+  try {
+    console.log('Creating participant with data:', req.body);
+    const { name } = req.body;
+    
+    if (!name || name.trim().length === 0) {
+      return res.status(400).json({ message: 'Participant name is required' });
+    }
+    
+    const participant = new Participant({
+      name: name.trim(),
+      user: req.user.id
+    });
+    
+    console.log('Saving participant:', participant);
+    await participant.save();
+    console.log('Participant saved successfully:', participant);
+    return res.status(201).json(participant);
+  } catch (error) {
+    console.error('Error creating participant:', error);
+    return res.status(500).json({ message: 'Error creating participant: ' + error.message });
+  }
+});
+
+app.delete('/api/participants/:id', auth, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid participant ID' });
+    }
+    
+    const participant = await Participant.findOneAndDelete({
+      _id: req.params.id,
+      user: req.user.id
+    });
+    
+    if (!participant) {
+      return res.status(404).json({ message: 'Participant not found' });
+    }
+    
+    // Remove participant from all bills
+    await Bill.updateMany(
+      { user: req.user.id },
+      { $pull: { participants: { _id: req.params.id } } }
+    );
+    
+    return res.json({ message: 'Participant deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting participant:', error);
+    return res.status(500).json({ message: 'Error deleting participant' });
+  }
+});
+
+// Daily details management
+app.post('/api/bills/:id/daily-details', auth, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid bill ID' });
+    }
+    
+    const { date, amount, splitCount, selectedParticipants, description } = req.body;
+    
+    if (!date || amount === undefined || !splitCount) {
+      return res.status(400).json({ message: 'Date, amount, and split count are required' });
+    }
+    
+    if (amount < 0) {
+      return res.status(400).json({ message: 'Amount must be non-negative' });
+    }
+    
+    if (splitCount < 1) {
+      return res.status(400).json({ message: 'Split count must be at least 1' });
+    }
+    
+    const bill = await Bill.findOne({ _id: req.params.id, user: req.user.id });
+    
+    if (!bill) {
+      return res.status(404).json({ message: 'Bill not found' });
+    }
+    
+    try {
+      await bill.addDailyDetail({
+        date: new Date(date),
+        amount: parseFloat(amount),
+        splitCount: parseInt(splitCount),
+        selectedParticipants: selectedParticipants || [],
+        description: description ? description.trim() : ''
+      });
+      return res.status(201).json(bill);
+    } catch (addError) {
+      return res.status(400).json({ message: addError.message });
+    }
+  } catch (error) {
+    console.error('Error adding daily detail:', error);
+    return res.status(500).json({ message: 'Error adding daily detail' });
+  }
+});
+
+app.put('/api/bills/:id/daily-details/:detailId', auth, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id) || !mongoose.Types.ObjectId.isValid(req.params.detailId)) {
+      return res.status(400).json({ message: 'Invalid bill ID or detail ID' });
+    }
+    
+    const { date, amount, splitCount, selectedParticipants, description } = req.body;
+    const updateData = {};
+    
+    if (date) updateData.date = new Date(date);
+    if (amount !== undefined) {
+      if (amount < 0) {
+        return res.status(400).json({ message: 'Amount must be non-negative' });
+      }
+      updateData.amount = parseFloat(amount);
+    }
+    if (splitCount !== undefined) {
+      if (splitCount < 1) {
+        return res.status(400).json({ message: 'Split count must be at least 1' });
+      }
+      updateData.splitCount = parseInt(splitCount);
+    }
+    if (selectedParticipants !== undefined) updateData.selectedParticipants = selectedParticipants || [];
+    if (description !== undefined) updateData.description = description ? description.trim() : '';
+    
+    const bill = await Bill.findOne({ _id: req.params.id, user: req.user.id });
+    
+    if (!bill) {
+      return res.status(404).json({ message: 'Bill not found' });
+    }
+    
+    try {
+      await bill.updateDailyDetail(req.params.detailId, updateData);
+      return res.json(bill);
+    } catch (updateError) {
+      return res.status(400).json({ message: updateError.message });
+    }
+  } catch (error) {
+    console.error('Error updating daily detail:', error);
+    return res.status(500).json({ message: 'Error updating daily detail' });
+  }
+});
+
+app.delete('/api/bills/:id/daily-details/:detailId', auth, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id) || !mongoose.Types.ObjectId.isValid(req.params.detailId)) {
+      return res.status(400).json({ message: 'Invalid bill ID or detail ID' });
+    }
+    
+    const bill = await Bill.findOne({ _id: req.params.id, user: req.user.id });
+    
+    if (!bill) {
+      return res.status(404).json({ message: 'Bill not found' });
+    }
+    
+    try {
+      await bill.removeDailyDetail(req.params.detailId);
+      return res.json(bill);
+    } catch (removeError) {
+      return res.status(400).json({ message: removeError.message });
+    }
+  } catch (error) {
+    console.error('Error removing daily detail:', error);
+    return res.status(500).json({ message: 'Error removing daily detail' });
+  }
+});
+
+// Bill statistics
+app.get('/api/bills/stats', auth, async (req, res) => {
+  try {
+    const totalBills = await Bill.countDocuments({ user: req.user.id });
+    const activeBills = await Bill.countDocuments({ user: req.user.id, status: 'active' });
+    const completedBills = await Bill.countDocuments({ user: req.user.id, status: 'completed' });
+    
+    // Total amount across all bills
+    const billsWithAmount = await Bill.find({ user: req.user.id, totalAmount: { $gt: 0 } });
+    const totalAmount = billsWithAmount.reduce((sum, bill) => sum + bill.totalAmount, 0);
+    
+    return res.json({
+      totalBills,
+      activeBills,
+      completedBills,
+      totalAmount: Math.round(totalAmount * 100) / 100,
+      lastUpdated: new Date()
+    });
+  } catch (error) {
+    console.error('Error getting bill stats:', error);
+    return res.status(500).json({ message: 'Error getting bill statistics' });
   }
 });
 
