@@ -239,7 +239,9 @@ function renderBillDetailsContent() {
             <h4 class="section-title" style="margin-bottom: 0;">Daily Details (${bill.dailyDetails?.length || 0})</h4>
             <div style="display: flex; gap: 0.5rem;">
               <button class="btn btn-small" onclick="openAddDailyDetailModal()">+ Add Daily Detail</button>
+              <button class="btn btn-small" onclick="triggerBillQRUpload()">Update QR Image</button>
               <button class="btn btn-small" onclick="openSummaryModal('${bill._id}')" style="background: linear-gradient(135deg, #28a745, #20c997);">Summary & Download PDF</button>
+              <input id="bill-qr-input" type="file" accept="image/*" style="display:none" onchange="attachBillQRImage(this)">
             </div>
           </div>
           <div id="daily-details-list">
@@ -511,4 +513,60 @@ function generateSingleBillSummaryHTML(summary, bill) {
       </div>
     </div>
   `;
+}
+
+// Add QR image upload helpers scoped to bill description
+function triggerBillQRUpload() {
+  const input = document.getElementById('bill-qr-input');
+  if (input) input.click();
+}
+
+async function attachBillQRImage(inputEl) {
+  try {
+    const file = inputEl.files && inputEl.files[0];
+    if (!file || !currentViewingBill) return;
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      const dataUrl = e.target.result;
+      const currentDesc = (currentViewingBill.description || '').trim();
+      const newDesc = currentDesc; // keep description unchanged to avoid exceeding maxlength
+      // Persist to server
+      try {
+        const response = await fetch(`${API_BASE}/api/bills/${currentViewingBill._id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ description: newDesc, qrImage: dataUrl })
+        });
+        if (!response.ok) {
+          // Try to parse JSON; if fails, read text to get clue (e.g., payload too large)
+          let msg = 'Failed to update bill';
+          try {
+            const err = await response.json();
+            msg = err.message || msg;
+          } catch (_) {
+            const errText = await response.text();
+            if (errText) msg = errText;
+          }
+          throw new Error(msg);
+        }
+        const updated = await response.json();
+        // Update local state and rerender
+        currentViewingBill = updated;
+        const index = currentBills.findIndex(b => b._id === updated._id);
+        if (index !== -1) currentBills[index] = updated;
+        showSuccess('QR image updated in bill description');
+        renderBillDetailsContent();
+      } catch (saveErr) {
+        console.error(saveErr);
+        showError(saveErr.message || 'Could not save QR image');
+      }
+    };
+    reader.readAsDataURL(file);
+  } catch (err) {
+    console.error('attachBillQRImage error', err);
+    showError('Failed to attach QR image');
+  }
 }

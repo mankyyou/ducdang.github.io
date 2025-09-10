@@ -444,6 +444,7 @@ function generateSingleBillPDFHTML(summary, bill) {
     '<h1>Bill Summary Report</h1>',
     '<h2>' + escapeHtml(bill.title) + '</h2>',
     '<p>Generated on ' + currentDate + ' at ' + currentTime + '</p>',
+    (bill.qrImage ? ('<div style="margin: 12px 0; text-align: center;"><img src="' + bill.qrImage + '" alt="QR" style="max-width: 240px; max-height: 240px; border:1px solid #e9ecef; border-radius: 8px;" /></div>') : ''),
     '</div>',
     '<div class="section">',
     '<h3>Thống kê hóa đơn</h3>',

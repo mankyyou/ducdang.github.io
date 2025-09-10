@@ -16,8 +16,8 @@ dotenv.config();
 
 const app = express();
 
-// Allow JSON bodies
-app.use(express.json());
+// Allow JSON bodies with larger payloads for images (QR data URLs)
+app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 
 // CORS (adjust origin in production)
@@ -1207,11 +1207,12 @@ app.put('/api/bills/:id', auth, async (req, res) => {
       return res.status(400).json({ message: 'Invalid bill ID' });
     }
     
-    const { title, description, startDate, endDate, status } = req.body;
+    const { title, description, startDate, endDate, status, qrImage } = req.body;
     const updateData = {};
     
     if (title) updateData.title = title;
     if (description !== undefined) updateData.description = description;
+    if (qrImage !== undefined) updateData.qrImage = qrImage;
     if (status) updateData.status = status;
     
     if (startDate && endDate) {

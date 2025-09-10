@@ -22,6 +22,11 @@ const billSchema = new mongoose.Schema({
     trim: true,
     maxlength: 1000
   },
+
+  // Optional QR image (Data URL)
+  qrImage: {
+    type: String
+  },
   
   // Thời gian
   startDate: {
