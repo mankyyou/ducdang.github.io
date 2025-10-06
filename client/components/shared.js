@@ -123,6 +123,15 @@ function goToBills() {
   window.location.href = 'bills.html';
 }
 
+function goToDecentralization() {
+  const tab = document.getElementById('decentralization-tab');
+  if (tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  }
+  window.location.href = 'decentralization.html';
+}
+
 // Tab animation function (simplified for smooth transitions)
 function animateTabSwitch(targetTab) {
   if (!targetTab) return;
@@ -191,3 +200,34 @@ function checkAuth() {
 function getUserData() {
   return userData;
 }
+
+// Inactivity timeout (30 minutes) -> redirect to 403 page
+(function setupIdleTimeout() {
+  const THIRTY_MINUTES_MS = 30 * 60 * 1000;
+  let idleTimerId = null;
+
+  function redirectToForbidden() {
+    try { localStorage.removeItem('token'); } catch (_) {}
+    window.location.href = '403.html';
+  }
+
+  function resetIdleTimer() {
+    if (idleTimerId) clearTimeout(idleTimerId);
+    idleTimerId = setTimeout(redirectToForbidden, THIRTY_MINUTES_MS);
+  }
+
+  function attachIdleListeners() {
+    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    events.forEach(evt => window.addEventListener(evt, resetIdleTimer, { passive: true }));
+  }
+
+  if (typeof window !== 'undefined') {
+    // Start timer only on authenticated pages (token present)
+    document.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('token')) {
+        attachIdleListeners();
+        resetIdleTimer();
+      }
+    });
+  }
+})();

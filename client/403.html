@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>403 Forbidden</title>
+<style>
+  :root { --bg: #0f1226; --primary: #ff3b3b; --text: #e8e8f0; --muted: #9aa0b5; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(1200px 600px at 50% -20%, #1b1f3a 0%, #0f1226 60%, #0f1226 100%);
+    color: var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  }
+  .card {
+    width: min(680px, 92vw); padding: 2.5rem; border-radius: 18px; background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .glow { position: absolute; inset: -40%; background: radial-gradient(closest-side, rgba(255,59,59,0.12), transparent 70%); filter: blur(20px); }
+  h1 { margin: 0 0 0.5rem; font-size: clamp(64px, 12vw, 120px); line-height: 0.9; letter-spacing: -2px; color: var(--primary); }
+  h2 { margin: 0 0 1rem; font-weight: 700; font-size: clamp(22px, 3.6vw, 28px); }
+  p { margin: 0.25rem 0; color: var(--muted); }
+  .actions { margin-top: 1.75rem; display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+  .btn { padding: 0.7rem 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); color: var(--text); background: rgba(255,255,255,0.04); cursor: pointer; text-decoration: none; }
+  .btn.primary { background: linear-gradient(135deg, #ff3b3b, #ff7a7a); color: white; border: none; }
+  .meta { margin-top: 1.25rem; font-size: 0.9rem; color: var(--muted); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="glow"></div>
+    <h1>403</h1>
+    <h2>Forbidden</h2>
+    <p>Bạn đã bị đăng xuất do không hoạt động trong 30 phút.</p>
+    <p>Vui lòng đăng nhập lại để tiếp tục.</p>
+    <div class="actions">
+      <a class="btn primary" href="index.html">Quay lại trang đăng nhập</a>
+      <a class="btn" href="index.html">Đăng nhập lại</a>
+    </div>
+    <div class="meta">Mã lỗi: 403 • Phiên hết hạn vì không hoạt động</div>
+  </div>
+  <script>
+    // Ensure token is cleared and all buttons lead to login
+    (function(){
+      try { localStorage.removeItem('token'); } catch (_) {}
+      document.querySelectorAll('.btn').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+          e.preventDefault();
+          try { localStorage.removeItem('token'); } catch (_) {}
+          window.location.href = 'index.html';
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

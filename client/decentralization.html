@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decentralization</title>
+  <link rel="stylesheet" href="components/shared.css">
+  <style>
+    .container { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+    .card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+    .users-table { width: 100%; border-collapse: collapse; }
+    .users-table th, .users-table td { padding: 0.75rem; border-bottom: 1px solid #f0f0f0; text-align: left; }
+    .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px; background: #eef2ff; color: #3b5bdb; font-size: 0.8rem; }
+    .perm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem 1rem; }
+    .perm-item { display: flex; align-items: center; gap: 0.5rem; }
+    .actions { display: flex; gap: 0.5rem; }
+    .btn { padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid #e5e7eb; background: #f9fafb; cursor: pointer; }
+    .btn.primary { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+    /* Proper dropdown styling */
+    .select { padding: 0.45rem 0.65rem; border-radius: 8px; border: 1px solid #e5e7eb; background: #fff; min-width: 140px; color: #111827; }
+    .select:focus { outline: none; box-shadow: 0 0 0 3px rgba(79,70,229,0.25); border-color: #4f46e5; }
+    .select option { color: #111827; }
+  </style>
+</head>
+<body>
+  <div id="header-container"></div>
+  <div class="container">
+    <div class="card">
+      <h2>Decentralization</h2>
+      <p>Quản lý quyền xem màn hình cho từng user. Chỉ admin mới truy cập.</p>
+    </div>
+    <div class="card" id="users-card">
+      <div id="users-loading">Loading users...</div>
+      <div id="users-content" style="display:none"></div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="components/shared.js"></script>
+  <script>
+    const ALL_PERMISSIONS = [
+      'view:dashboard',
+      'view:notes',
+      'view:english',
+      'view:bills',
+      'view:decentralization'
+    ];
+
+    async function loadHeaderAndUsers() {
+      try {
+        const response = await fetch('components/header.html');
+        const headerHtml = await response.text();
+        document.getElementById('header-container').innerHTML = headerHtml;
+        initializeSharedComponents('Decentralization', 'decentralization-tab');
+
+        // Check admin by calling /me
+        const meResp = await fetch(API_BASE + '/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        if (!meResp.ok) throw new Error('Cannot load user');
+        const me = await meResp.json();
+        if (!me.user || me.user.role !== 'admin') {
+          window.location.href = '403.html';
+          return;
+        }
+
+        // Load users
+        const resp = await fetch(API_BASE + '/api/users', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        if (!resp.ok) throw new Error('Failed to load users');
+        const users = await resp.json();
+        renderUsers(users);
+      } catch (e) {
+        document.getElementById('users-loading').textContent = 'Failed to load users';
+      }
+    }
+
+    function renderUsers(users) {
+      const container = document.getElementById('users-content');
+      container.style.display = 'block';
+      document.getElementById('users-loading').style.display = 'none';
+
+      const rows = users.map(u => {
+        const userPerms = Array.isArray(u.permissions) ? u.permissions : [];
+        const checkboxes = ALL_PERMISSIONS.map(p => {
+          const id = `perm_${u._id}_${p.replace(/[:]/g, '_')}`;
+          const checked = userPerms.includes(p) ? 'checked' : '';
+          return `<label class="perm-item"><input type="checkbox" id="${id}" data-user="${u._id}" value="${p}" ${checked}> <span>${p}</span></label>`;
+        }).join('');
+        return `
+          <tr>
+            <td>${u.email}</td>
+            <td>
+              <select id="role_${u._id}" class="select">
+                <option value="user" ${u.role === 'user' ? 'selected' : ''}>user</option>
+                <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>admin</option>
+              </select>
+            </td>
+            <td><div class="perm-grid">${checkboxes}</div></td>
+            <td class="actions">
+              <button class="btn primary" onclick="saveUserPerms('${u._id}')">Save</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Permissions</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    async function saveUserPerms(userId) {
+      const inputs = document.querySelectorAll(`input[type='checkbox'][data-user='${userId}']`);
+      const permissions = Array.from(inputs).filter(i => i.checked).map(i => i.value);
+      const roleSel = document.getElementById(`role_${userId}`);
+      const role = roleSel ? roleSel.value : undefined;
+      try {
+        const resp = await fetch(`${API_BASE}/api/users/${userId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ permissions, role })
+        });
+        if (!resp.ok) throw new Error('Save failed');
+        showSuccess('Permissions updated');
+      } catch (e) {
+        showError('Failed to update');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadHeaderAndUsers);
+  </script>
+</body>
+</html>

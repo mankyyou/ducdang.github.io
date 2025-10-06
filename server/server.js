@@ -57,6 +57,27 @@ try {
   console.warn('Could not ensure unique index on users.email:', err.message);
 }
 
+// Seed default admin user (kyrin)
+async function ensureDefaultAdmin() {
+  try {
+    const email = process.env.ADMIN_EMAIL || 'kyrin@local';
+    const password = process.env.ADMIN_PASSWORD || 'kyrin123';
+    const existing = await User.findOne({ email });
+    if (!existing) {
+      const passwordHash = await bcrypt.hash(password, 10);
+      const permissions = ['view:dashboard', 'view:notes', 'view:english', 'view:bills', 'view:decentralization'];
+      await User.create({ email, passwordHash, role: 'admin', permissions });
+      // eslint-disable-next-line no-console
+      console.log(`Default admin created: ${email}`);
+    }
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('Failed to ensure default admin:', e.message);
+  }
+}
+
+await ensureDefaultAdmin();
+
 // JWT helpers
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret';
 function createToken(user) {
@@ -85,7 +106,7 @@ app.post('/api/auth/register', async (req, res) => {
   if (exists) return res.status(409).json({ message: 'Email already registered' });
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const user = await User.create({ email, passwordHash });
+  const user = await User.create({ email, passwordHash, role: 'user', permissions: [] });
   return res.json({ message: 'Registered', id: user._id });
 });
 
@@ -104,8 +125,43 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 app.get('/api/auth/me', auth, async (req, res) => {
-  const user = await User.findById(req.user.id).select('_id email createdAt');
+  const user = await User.findById(req.user.id).select('_id email createdAt role permissions');
   return res.json({ user });
+});
+
+// Admin middleware
+function requireAdmin(req, res, next) {
+  if (!req.user || !req.user.id) return res.status(401).json({ message: 'Unauthorized' });
+  User.findById(req.user.id).then(u => {
+    if (!u) return res.status(401).json({ message: 'Unauthorized' });
+    if (u.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
+    next();
+  }).catch(() => res.status(500).json({ message: 'Server error' }));
+}
+
+// Users list (admin)
+app.get('/api/users', auth, requireAdmin, async (req, res) => {
+  try {
+    const users = await User.find({}).select('_id email role permissions createdAt');
+    return res.json(users);
+  } catch (e) {
+    return res.status(500).json({ message: 'Error fetching users' });
+  }
+});
+
+// Update user role/permissions (admin)
+app.put('/api/users/:id', auth, requireAdmin, async (req, res) => {
+  try {
+    const { role, permissions } = req.body;
+    const update = {};
+    if (role) update.role = role;
+    if (Array.isArray(permissions)) update.permissions = permissions;
+    const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select('_id email role permissions createdAt');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    return res.json(user);
+  } catch (e) {
+    return res.status(500).json({ message: 'Error updating user' });
+  }
 });
 
 // Note Routes
