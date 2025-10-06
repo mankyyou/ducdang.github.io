@@ -292,14 +292,30 @@ function renderDailyDetailsList(dailyDetails) {
 // Summary Modal Functions
 let currentSummaryBillId = null;
 
-function openSummaryModal(billId) {
+async function ensureGlobalParticipantsLoaded() {
+  try {
+    if (!globalParticipants || globalParticipants.length === 0) {
+      const resp = await fetch(API_BASE + '/api/participants', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (resp.ok) {
+        globalParticipants = await resp.json();
+      }
+    }
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('Could not load participants for summary view:', e);
+  }
+}
+
+async function openSummaryModal(billId) {
   if (!billId) {
     showError('Bill ID is required to view summary');
     return;
   }
   
   currentSummaryBillId = billId;
-  generateSummaryContent(billId);
+  await generateSummaryContent(billId);
   document.getElementById('summary-modal').style.display = 'block';
 }
 
@@ -308,7 +324,7 @@ function closeSummaryModal() {
   currentSummaryBillId = null;
 }
 
-function generateSummaryContent(billId) {
+async function generateSummaryContent(billId) {
   const summaryContent = document.getElementById('summary-content');
   
   // Only show summary for specific bill
@@ -322,6 +338,7 @@ function generateSummaryContent(billId) {
     return;
   }
   
+  await ensureGlobalParticipantsLoaded();
   const bill = currentBills.find(b => b._id === billId);
   if (!bill) {
     summaryContent.innerHTML = `
@@ -334,7 +351,10 @@ function generateSummaryContent(billId) {
   }
   
   // Generate summary for single bill only
-  const summary = calculateSingleBillSummary(bill);
+  const excludedParticipantIds = (typeof window !== 'undefined' && Array.isArray(window.currentSummaryExcludedParticipantIds))
+    ? window.currentSummaryExcludedParticipantIds
+    : [];
+  const summary = calculateSingleBillSummary(bill, { excludedParticipantIds });
   generateSingleBillSummaryHTML(summary, bill);
 }
 
@@ -384,11 +404,12 @@ function getParticipantNameById(bill, participantId) {
     .find(p => p._id === participantId);
   if (fromGlobal) return fromGlobal.name;
   // Last resort: show truncated id
-  return participantId;
+  return 'Unknown';
 }
 
 // Single Bill Summary Functions
-function calculateSingleBillSummary(bill) {
+function calculateSingleBillSummary(bill, options) {
+  const excludedParticipantIds = options && Array.isArray(options.excludedParticipantIds) ? options.excludedParticipantIds : [];
   const summary = {
     totalAmount: bill.totalAmount || 0,
     totalDays: bill.totalDays || 0,
@@ -410,6 +431,10 @@ function calculateSingleBillSummary(bill) {
         ? Math.min(detail.splitCount, bill.participants.length)
         : 0;
       participantIds = (bill.participants || []).slice(0, fallbackCount).map(p => p._id);
+    }
+    // Apply exclusion if provided
+    if (excludedParticipantIds.length > 0) {
+      participantIds = participantIds.filter(pid => !excludedParticipantIds.includes(pid));
     }
     if (participantIds.length === 0) return;
 
@@ -442,8 +467,55 @@ function calculateSingleBillSummary(bill) {
 function generateSingleBillSummaryHTML(summary, bill) {
   const summaryContent = document.getElementById('summary-content');
   
+  const excludedIds = (typeof window !== 'undefined' && Array.isArray(window.currentSummaryExcludedParticipantIds))
+    ? window.currentSummaryExcludedParticipantIds
+    : [];
+  // Build participants for exclusion from bill.participants or derive from dailyDetails when missing
+  const participantsForExclude = (bill.participants && bill.participants.length > 0)
+    ? bill.participants
+    : (() => {
+        const idSet = new Set();
+        (bill.dailyDetails || []).forEach(detail => {
+          let ids = [];
+          if (detail.selectedParticipants && detail.selectedParticipants.length > 0) {
+            ids = detail.selectedParticipants;
+          } else {
+            const fallbackCount = detail.splitCount && detail.splitCount > 0 ? detail.splitCount : (bill.participants?.length || 0);
+            ids = (bill.participants || []).slice(0, fallbackCount).map(p => p._id);
+          }
+          ids.forEach(pid => idSet.add(pid));
+        });
+        // Map to objects with names resolved from global list if needed
+        const idsArray = Array.from(idSet);
+        const candidates = idsArray.map(pid => ({ _id: pid, name: getParticipantNameById(bill, pid) }));
+        // Filter out entries where name is still Unknown and we have global list to cross-check
+        return candidates.map(c => {
+          if (c.name && c.name !== 'Unknown') return c;
+          const fromGlobal = (typeof globalParticipants !== 'undefined' ? globalParticipants : []).find(p => p._id === c._id);
+          return fromGlobal ? { _id: fromGlobal._id, name: fromGlobal.name } : c;
+        });
+      })();
+
+  const excludeSelectHtml = `
+    <div style="margin-bottom: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+        <label style="font-weight: 600; color: #333;">Exclude participants:</label>
+        <button class="btn btn-small" onclick="clearExcludedParticipants()">Clear</button>
+      </div>
+      <div id="exclude-participant-checkboxes" style="margin-top: 0.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.5rem 1rem;">
+        ${(participantsForExclude || []).map(p => `
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" value="${p._id}" ${excludedIds.includes(p._id) ? 'checked' : ''} onchange="excludeParticipantsCheckboxChanged()" />
+            <span>${escapeHtml(p.name)}</span>
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
   summaryContent.innerHTML = `
     <div style="margin-bottom: 2rem;">
+      ${excludeSelectHtml}
       <h4 style="color: #333; margin-bottom: 1rem; border-bottom: 2px solid #667eea; padding-bottom: 0.5rem;">
         Bill Summary: ${escapeHtml(bill.title)}
       </h4>
@@ -514,6 +586,32 @@ function generateSingleBillSummaryHTML(summary, bill) {
       </div>
     </div>
   `;
+}
+
+// Exclude participants change handlers
+function excludeParticipantsCheckboxChanged() {
+  const container = document.getElementById('exclude-participant-checkboxes');
+  if (!container) return;
+  const selected = Array.from(container.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+  if (typeof window !== 'undefined') {
+    window.currentSummaryExcludedParticipantIds = selected;
+  }
+  if (typeof window !== 'undefined' && window.currentSummaryBillId) {
+    generateSummaryContent(window.currentSummaryBillId);
+  }
+}
+
+function clearExcludedParticipants() {
+  if (typeof window !== 'undefined') {
+    window.currentSummaryExcludedParticipantIds = [];
+  }
+  const container = document.getElementById('exclude-participant-checkboxes');
+  if (container) {
+    Array.from(container.querySelectorAll('input[type="checkbox"]')).forEach(cb => cb.checked = false);
+  }
+  if (typeof window !== 'undefined' && window.currentSummaryBillId) {
+    generateSummaryContent(window.currentSummaryBillId);
+  }
 }
 
 // Add QR image upload helpers scoped to bill description

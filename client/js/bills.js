@@ -312,10 +312,11 @@ function getParticipantNameByIdForPDF(bill, participantId) {
   if (fromBill) return fromBill.name;
   const fromGlobal = (typeof globalParticipants !== 'undefined' ? globalParticipants : []).find(p => p._id === participantId);
   if (fromGlobal) return fromGlobal.name;
-  return participantId;
+  return 'Unknown';
 }
 
-function generateSingleBillPDFHTML(summary, bill) {
+function generateSingleBillPDFHTML(summary, bill, options) {
+  const excludedParticipantIds = options && Array.isArray(options.excludedParticipantIds) ? options.excludedParticipantIds : [];
   const currentDate = new Date().toLocaleDateString('vi-VN');
   const currentTime = new Date().toLocaleTimeString('vi-VN');
   
@@ -335,6 +336,9 @@ function generateSingleBillPDFHTML(summary, bill) {
         // Fallback for legacy records: use first N participants based on splitCount (or all if missing)
         const fallbackCount = detail.splitCount && detail.splitCount > 0 ? detail.splitCount : (bill.participants?.length || 0);
         participantIds = (bill.participants || []).slice(0, fallbackCount).map(p => p._id);
+      }
+      if (excludedParticipantIds.length > 0) {
+        participantIds = participantIds.filter(id => !excludedParticipantIds.includes(id));
       }
 
       if (participantIds.length > 0) {
@@ -532,9 +536,12 @@ async function downloadSummaryPDF(billId) {
       }
     }
 
-    // Generate PDF for single bill only
-    const summary = calculateSingleBillSummary(bill);
-    const htmlContent = generateSingleBillPDFHTML(summary, bill);
+    // Generate PDF for single bill only, honoring excluded participant selection in summary modal
+    const excludedParticipantIds = (typeof window !== 'undefined' && Array.isArray(window.currentSummaryExcludedParticipantIds))
+      ? window.currentSummaryExcludedParticipantIds
+      : [];
+    const summary = calculateSingleBillSummary(bill, { excludedParticipantIds });
+    const htmlContent = generateSingleBillPDFHTML(summary, bill, { excludedParticipantIds });
     
     // Create a new window for PDF generation
     const summaryWindow = window.open('', '_blank');

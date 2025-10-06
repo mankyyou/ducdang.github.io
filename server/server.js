@@ -35,6 +35,28 @@ if (!MONGODB_URI) {
 }
 await mongoose.connect(MONGODB_URI);
 
+// Cleanup legacy indexes and ensure correct ones
+try {
+  // Drop legacy unique index on username if it exists (causes dup key on null)
+  await mongoose.connection.db.collection('users').dropIndex('username_1');
+  // eslint-disable-next-line no-console
+  console.log('Dropped legacy index users.username_1');
+} catch (err) {
+  // Ignore if index doesn't exist
+  if (err && err.codeName !== 'IndexNotFound' && err.code !== 27) {
+    // eslint-disable-next-line no-console
+    console.warn('Could not drop legacy index users.username_1:', err.message);
+  }
+}
+
+// Ensure unique index on email exists
+try {
+  await mongoose.connection.db.collection('users').createIndex({ email: 1 }, { unique: true });
+} catch (err) {
+  // eslint-disable-next-line no-console
+  console.warn('Could not ensure unique index on users.email:', err.message);
+}
+
 // JWT helpers
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret';
 function createToken(user) {
